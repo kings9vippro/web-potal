@@ -1,7 +1,7 @@
 {
-  "name": "anhkhoi-portal",
-  "version": "8.5.0",
-  "description": "Hệ thống Web Portal Bản Quyền Anh Khôi",
+  "name": "web-portal-anhkhoi",
+  "version": "1.0.0",
+  "description": "Portal Anh Khoi",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
