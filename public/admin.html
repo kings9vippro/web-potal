@@ -3,270 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cổng Quản Trị Server — Dev Anh Khôi</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <title>Admin Bắt Cầu — Anh Khôi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700&family=Inter:wght@400;600&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; background: #0F172A; color: #F8FAFC; }
-        .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
-        [x-cloak] { display: none !important; }
-    </style>
+    <style>body { font-family: 'Inter', sans-serif; background: #0A0F1D; color: #F8FAFC; } [x-cloak] { display: none !important; }</style>
 </head>
-<body x-data="adminPortal()" x-cloak class="min-h-screen flex flex-col">
+<body x-data="adminApp()" x-cloak class="min-h-screen flex flex-col p-4 sm:p-8">
 
-    <!-- FORM NHẬP MẬT MÃ ADMIN -->
-    <div x-show="!isAuthenticated" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-7 max-w-sm w-full text-center shadow-2xl">
-            <div class="w-12 h-12 rounded-2xl bg-blue-600/20 text-blue-400 flex items-center justify-center mx-auto text-2xl mb-3">
-                <i class="ri-lock-password-line"></i>
-            </div>
-            <h2 class="text-lg font-bold font-display text-white mb-1">Cổng Quản Trị Máy Chủ</h2>
-            <p class="text-xs text-slate-400 mb-5">Nhập Secret PIN của Dev Anh Khôi</p>
-
-            <form @submit.prevent="verifyKey()" class="space-y-3.5">
-                <input type="password" x-model="adminKeyInput" placeholder="Nhập Secret Key..." 
-                       class="w-full h-11 px-4 bg-slate-950 border border-slate-800 rounded-xl text-center font-mono text-sm focus:outline-none focus:border-blue-500 text-white">
-                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs uppercase tracking-wider rounded-xl">
-                    Mở Khóa Quản Trị
-                </button>
-            </form>
-        </div>
+    <!-- Form xác thực Admin -->
+    <div x-show="!auth" class="max-w-sm mx-auto w-full bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center mt-20">
+        <h2 class="text-xl font-bold font-['Plus_Jakarta_Sans'] mb-4">Cổng Quản Trị Server</h2>
+        <input type="password" x-model="pin" placeholder="Nhập Secret PIN..." class="w-full h-12 px-4 rounded-xl bg-black border border-slate-800 mb-4 text-center">
+        <button @click="login()" class="w-full h-12 bg-blue-600 text-white font-bold rounded-xl">Xác Nhận</button>
     </div>
 
-    <!-- KHU VỰC QUẢN TRỊ -->
-    <div x-show="isAuthenticated" class="flex-1 flex flex-col">
-        <header class="h-16 border-b border-slate-800 bg-slate-900 px-6 flex items-center justify-between">
-            <div class="flex items-center gap-2.5">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <h1 class="font-display font-bold text-white text-sm">SERVER QUẢN TRỊ ANH KHÔI</h1>
-            </div>
-            <div class="flex items-center gap-3">
-                <button @click="fetchData()" class="p-2 text-slate-400 hover:text-white rounded-lg bg-slate-800">
-                    <i class="ri-refresh-line"></i>
-                </button>
-                <button @click="logout()" class="px-3 py-1.5 bg-rose-500/20 text-rose-300 font-bold text-xs rounded-lg">
-                    Thoát
-                </button>
-            </div>
-        </header>
+    <!-- Bảng Quản Trị -->
+    <div x-show="auth" class="max-w-5xl mx-auto w-full bg-slate-900 border border-slate-800 p-6 rounded-3xl">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-xl font-bold font-['Plus_Jakarta_Sans']">Quản Lý Key & Tài Khoản</h1>
+            <button @click="auth = false" class="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg text-sm">Thoát</button>
+        </div>
 
-        <div class="flex-1 max-w-6xl w-full mx-auto p-6 space-y-6">
-            <div class="flex gap-2 border-b border-slate-800 pb-3">
-                <button @click="activeTab = 'deposits'" :class="activeTab === 'deposits' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:bg-slate-800'" class="px-4 py-2 rounded-xl text-xs">
-                    Duyệt Tiền Nạp (<span x-text="deposits.filter(d=>d.status==='Chờ duyệt').length"></span>)
-                </button>
-                <button @click="activeTab = 'keys'" :class="activeTab === 'keys' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:bg-slate-800'" class="px-4 py-2 rounded-xl text-xs">
-                    Tạo Key VIP (<span x-text="keys.length"></span>)
-                </button>
-                <button @click="activeTab = 'users'" :class="activeTab === 'users' ? 'bg-blue-600 text-white font-bold' : 'text-slate-400 hover:bg-slate-800'" class="px-4 py-2 rounded-xl text-xs">
-                    Tất Cả Accounts (<span x-text="users.length"></span>)
-                </button>
-            </div>
-
-            <!-- TAB 1: DUYỆT NẠP TIỀN -->
-            <div x-show="activeTab === 'deposits'" class="space-y-4">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                    <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-950 text-slate-400 uppercase font-bold">
-                            <tr>
-                                <th class="p-3">Mã GD</th>
-                                <th class="p-3">Tài Khoản</th>
-                                <th class="p-3">Số Tiền</th>
-                                <th class="p-3">Thời Gian</th>
-                                <th class="p-3">Trạng Thái</th>
-                                <th class="p-3 text-right">Duyệt</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800 font-medium">
-                            <template x-for="d in deposits" :key="d.id">
-                                <tr>
-                                    <td class="p-3 font-mono text-blue-400" x-text="d.id"></td>
-                                    <td class="p-3 text-white" x-text="d.username"></td>
-                                    <td class="p-3 font-mono text-amber-400 font-bold" x-text="formatMoney(d.amount) + 'đ'"></td>
-                                    <td class="p-3 text-slate-400" x-text="d.createdAt"></td>
-                                    <td class="p-3">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold"
-                                              :class="d.status === 'Chờ duyệt' ? 'bg-amber-500/20 text-amber-400' : (d.status === 'Đã cộng tiền' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400')"
-                                              x-text="d.status"></span>
-                                    </td>
-                                    <td class="p-3 text-right space-x-1" x-show="d.status === 'Chờ duyệt'">
-                                        <button @click="actionDeposit(d.id, 'approve')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-[11px]">Duyệt</button>
-                                        <button @click="actionDeposit(d.id, 'reject')" class="px-2.5 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded font-bold text-[11px]">Từ chối</button>
-                                    </td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TAB 2: TẠO KEY VIP -->
-            <div x-show="activeTab === 'keys'" class="space-y-4">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex flex-wrap gap-2.5 items-center">
-                    <select x-model="newKey.vipName" class="h-10 px-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white">
-                        <option value="VIP 1 Ngày">VIP 1 Ngày</option>
-                        <option value="VIP 7 Ngày">VIP 7 Ngày</option>
-                        <option value="VIP 30 Ngày">VIP 30 Ngày</option>
-                        <option value="SIÊU VIP KIM CƯƠNG">SIÊU VIP KIM CƯƠNG</option>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-black/50 p-5 rounded-2xl border border-slate-800">
+                <h3 class="font-bold mb-3 text-sm text-slate-400">Tạo Mã Key Mới (Tự đếm ngược khi KH nhập)</h3>
+                <div class="flex gap-2">
+                    <select x-model="keyTime" class="h-11 px-3 rounded-xl bg-slate-900 border border-slate-700 text-sm flex-1">
+                        <option value="1 Giờ">Key 1 Giờ</option>
+                        <option value="24 Giờ">Key 24 Giờ (1 Ngày)</option>
+                        <option value="7 Ngày">Key 7 Ngày</option>
+                        <option value="30 Ngày">Key 30 Ngày</option>
+                        <option value="Vô Hạn">Vĩnh Viễn</option>
                     </select>
-                    <select x-model="newKey.duration" class="h-10 px-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white">
-                        <option value="24 Giờ">24 Giờ</option>
-                        <option value="7 Ngày">7 Ngày</option>
-                        <option value="30 Ngày">30 Ngày</option>
-                        <option value="Vô Hạn">Vô Hạn</option>
-                    </select>
-                    <button @click="generateKeys()" class="h-10 px-5 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs rounded-xl">
-                        Tạo Mã Key
-                    </button>
-                </div>
-
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                    <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-950 text-slate-400 uppercase font-bold">
-                            <tr>
-                                <th class="p-3">Mã Key</th>
-                                <th class="p-3">Gói VIP</th>
-                                <th class="p-3">Thời Hạn</th>
-                                <th class="p-3">Trạng Thái</th>
-                                <th class="p-3">Người Dùng</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800 font-medium font-mono">
-                            <template x-for="k in keys" :key="k.code">
-                                <tr>
-                                    <td class="p-3 text-amber-400 font-bold" x-text="k.code"></td>
-                                    <td class="p-3 text-white" x-text="k.vipName"></td>
-                                    <td class="p-3 text-slate-400" x-text="k.duration"></td>
-                                    <td class="p-3">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold"
-                                              :class="k.isUsed ? 'bg-slate-800 text-slate-500' : 'bg-emerald-500/20 text-emerald-400'"
-                                              x-text="k.isUsed ? 'Đã dùng' : 'Chưa dùng'"></span>
-                                    </td>
-                                    <td class="p-3 text-slate-300" x-text="k.usedBy || '---'"></td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
+                    <button @click="createKey()" class="px-6 bg-amber-500 hover:bg-amber-600 text-amber-950 font-bold rounded-xl text-sm transition-colors">Tạo Key</button>
                 </div>
             </div>
-
-            <!-- TAB 3: XEM ACC ĐÃ TẠO -->
-            <div x-show="activeTab === 'users'" class="space-y-4">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
-                    <table class="w-full text-xs text-left">
-                        <thead class="bg-slate-950 text-slate-400 uppercase font-bold">
-                            <tr>
-                                <th class="p-3">ID / Tên Nick</th>
-                                <th class="p-3">Tên Hiển Thị</th>
-                                <th class="p-3">Email</th>
-                                <th class="p-3">Số Dư</th>
-                                <th class="p-3">Cấp VIP</th>
-                                <th class="p-3">Đăng Ký Qua</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800 font-medium">
-                            <template x-for="u in users" :key="u.id">
-                                <tr>
-                                    <td class="p-3 font-mono text-blue-400 font-bold" x-text="u.username"></td>
-                                    <td class="p-3 text-white" x-text="u.displayName"></td>
-                                    <td class="p-3 text-slate-400" x-text="u.email"></td>
-                                    <td class="p-3 font-mono text-amber-400 font-bold" x-text="formatMoney(u.balance) + 'đ'"></td>
-                                    <td class="p-3 text-slate-200" x-text="u.vipLevel"></td>
-                                    <td class="p-3 text-slate-500" x-text="u.provider"></td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
+            <div class="bg-black/50 p-5 rounded-2xl border border-slate-800 flex items-center justify-between">
+                <div>
+                    <h3 class="font-bold mb-1 text-sm text-slate-400">Tổng Số Tài Khoản</h3>
+                    <p class="text-3xl font-mono font-bold text-blue-400" x-text="users.length"></p>
                 </div>
+                <button @click="fetchData()" class="w-12 h-12 rounded-full bg-slate-800 text-white flex items-center justify-center text-xl"><i class="ri-refresh-line"></i></button>
             </div>
+        </div>
 
+        <!-- Bảng Danh sách Key -->
+        <h3 class="font-bold mb-3 text-sm text-slate-400">Danh Sách Mã Key</h3>
+        <div class="overflow-x-auto bg-black rounded-xl border border-slate-800 mb-6">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-900 text-slate-500">
+                    <tr><th class="p-3">Mã Key</th><th class="p-3">Thời Hạn</th><th class="p-3">Trạng Thái</th><th class="p-3">Người Dùng</th></tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800 font-mono">
+                    <template x-for="k in keys" :key="k.code">
+                        <tr>
+                            <td class="p-3 text-amber-400 font-bold" x-text="k.code"></td>
+                            <td class="p-3 text-slate-300" x-text="k.duration"></td>
+                            <td class="p-3">
+                                <span class="px-2 py-0.5 rounded text-[10px]" :class="k.isUsed ? 'bg-slate-800 text-slate-500' : 'bg-emerald-500/20 text-emerald-400'" x-text="k.isUsed ? 'Đã kích hoạt' : 'Chưa dùng'"></span>
+                            </td>
+                            <td class="p-3 text-blue-400" x-text="k.usedBy || '-'"></td>
+                        </tr>
+                    </template>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        function adminPortal() {
+        function adminApp() {
             return {
-                isAuthenticated: false,
-                adminKeyInput: '',
-                activeTab: 'deposits',
-                users: [],
-                deposits: [],
-                keys: [],
-                newKey: { vipName: 'SIÊU VIP KIM CƯƠNG', duration: 'Vô Hạn', count: 1 },
-
-                formatMoney(num) {
-                    return new Intl.NumberFormat('vi-VN').format(num || 0);
+                auth: false, pin: '', users: [], keys: [], keyTime: '24 Giờ',
+                login() {
+                    if(this.pin === 'AnhKhoi2026') { this.auth = true; this.fetchData(); }
+                    else Swal.fire('Lỗi', 'Sai mã PIN', 'error');
                 },
-
-                verifyKey() {
-                    if (this.adminKeyInput === 'AnhKhoi2026') {
-                        this.isAuthenticated = true;
-                        localStorage.setItem('ak_admin_key', this.adminKeyInput);
-                        this.fetchData();
-                    } else {
-                        Swal.fire('Lỗi', 'Secret Key không chính xác!', 'error');
-                    }
-                },
-
                 async fetchData() {
-                    const key = localStorage.getItem('ak_admin_key');
-                    try {
-                        const res = await fetch('/api/admin/overview', { headers: { 'x-admin-key': key } });
-                        const data = await res.json();
-                        if (data.status === 'success') {
-                            this.users = data.users;
-                            this.deposits = data.deposits;
-                            this.keys = data.keys;
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Không thể lấy dữ liệu', 'error');
-                    }
+                    const res = await fetch('/api/admin/overview', { headers: { 'x-admin-key': this.pin } });
+                    const data = await res.json();
+                    if(data.status === 'success') { this.users = data.users; this.keys = data.keys; }
                 },
-
-                async actionDeposit(id, action) {
-                    const key = localStorage.getItem('ak_admin_key');
-                    try {
-                        const res = await fetch('/api/admin/deposit/action', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
-                            body: JSON.stringify({ depositId: id, action })
-                        });
-                        const data = await res.json();
-                        if (data.status === 'success') {
-                            Swal.fire('Thành công', data.message, 'success');
-                            this.fetchData();
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Lỗi kết nối', 'error');
-                    }
-                },
-
-                async generateKeys() {
-                    const key = localStorage.getItem('ak_admin_key');
-                    try {
-                        const res = await fetch('/api/admin/keys/create', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
-                            body: JSON.stringify(this.newKey)
-                        });
-                        const data = await res.json();
-                        if (data.status === 'success') {
-                            Swal.fire('Thành công', data.message, 'success');
-                            this.fetchData();
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Không thể tạo Key', 'error');
-                    }
-                },
-
-                logout() {
-                    localStorage.removeItem('ak_admin_key');
-                    this.isAuthenticated = false;
+                async createKey() {
+                    const res = await fetch('/api/admin/keys/create', {
+                        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-admin-key': this.pin },
+                        body: JSON.stringify({ vipName: 'Gói VIP Tool', duration: this.keyTime, count: 1 })
+                    });
+                    const data = await res.json();
+                    if(data.status === 'success') { Swal.fire('Thành công', data.message, 'success'); this.fetchData(); }
                 }
-            };
+            }
         }
     </script>
 </body>
