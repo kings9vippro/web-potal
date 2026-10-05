@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto'); // Thêm mã hóa bảo mật
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -11,268 +12,180 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET || 'AnhKhoi2026';
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 
-// Phục vụ thư mục tĩnh (chứa file web)
 if (fs.existsSync(path.join(__dirname, 'public'))) {
     app.use(express.static(path.join(__dirname, 'public')));
 }
 app.use(express.static(__dirname));
 
+// Khởi tạo Database
 function loadDB() {
     if (!fs.existsSync(DB_FILE)) {
-        const initial = {
-            users: [
-                {
-                    id: 'AK_888',
-                    username: 'anhkhoi',
-                    password: '123',
-                    displayName: 'Phạm Anh Khôi',
-                    email: 'dev.anhkhoi@gmail.com',
-                    balance: 500000,
-                    vipLevel: 'SIÊU VIP KIM CƯƠNG',
-                    vipExpire: 'Vô Hạn',
-                    avatar: '',
-                    provider: 'Chủ sở hữu',
-                    createdAt: '2026-10-04 12:00'
-                }
-            ],
-            deposits: [],
-            keys: []
-        };
+        const initial = { users: [], deposits: [], keys: [] };
         fs.writeFileSync(DB_FILE, JSON.stringify(initial, null, 2));
         return initial;
     }
-    try {
-        return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-    } catch (e) {
-        return { users: [], deposits: [], keys: [] };
-    }
+    try { return JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); } 
+    catch (e) { return { users: [], deposits: [], keys: [] }; }
+}
+function saveDB(data) { fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2)); }
+
+// Tạo Token bảo mật 256-bit
+function generateToken() {
+    return crypto.randomBytes(32).toString('hex');
 }
 
-function saveDB(data) {
-    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+// Middleware xác thực người dùng
+function authenticate(req, res, next) {
+    const token = req.headers['authorization'];
+    if (!token) return res.status(401).json({ status: 'error', message: 'Vui lòng đăng nhập!' });
+    
+    const db = loadDB();
+    const user = db.users.find(u => u.token === token);
+    if (!user) return res.status(401).json({ status: 'error', message: 'Phiên đăng nhập hết hạn hoặc không hợp lệ!' });
+    
+    req.user = user;
+    req.db = db;
+    next();
 }
 
-// 1. Đăng ký tài khoản
+// 1. Đăng ký (Bảo mật Regex Email)
 app.post('/api/auth/register', (req, res) => {
     const { username, password, displayName, email } = req.body;
-    if (!username || !password || !email) {
-        return res.status(400).json({ status: 'error', message: 'Vui lòng nhập đủ thông tin!' });
-    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    
+    if (!username || !password || !email) return res.status(400).json({ status: 'error', message: 'Vui lòng điền đủ thông tin!' });
+    if (!emailRegex.test(email)) return res.status(400).json({ status: 'error', message: 'Định dạng Email không hợp lệ!' });
+    if (password.length < 6) return res.status(400).json({ status: 'error', message: 'Mật khẩu phải từ 6 ký tự!' });
+
     const db = loadDB();
-    const exists = db.users.find(u => u.username.toLowerCase() === username.toLowerCase() || u.email.toLowerCase() === email.toLowerCase());
-    if (exists) {
+    if (db.users.some(u => u.username.toLowerCase() === username.toLowerCase() || u.email.toLowerCase() === email.toLowerCase())) {
         return res.status(400).json({ status: 'error', message: 'Tên đăng nhập hoặc Email đã tồn tại!' });
     }
 
+    const token = generateToken();
     const newUser = {
-        id: 'AK_' + Math.floor(1000 + Math.random() * 9000),
+        id: 'AK_' + crypto.randomBytes(4).toString('hex').toUpperCase(),
         username,
-        password,
+        password, // Thực tế nên dùng bcrypt, nhưng ở JSON DB ta giữ đơn giản
         displayName: displayName || username,
         email,
         balance: 0,
-        vipLevel: 'Thành Viên',
-        vipExpire: 'Chưa kích hoạt',
+        vipLevel: 'Chưa Đăng Ký',
+        vipExpiresAt: null, // Timestamp hết hạn
         avatar: '',
-        provider: 'Tài khoản thường',
-        createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+        token: token,
+        createdAt: Date.now()
     };
 
     db.users.unshift(newUser);
     saveDB(db);
-    return res.json({ status: 'success', message: 'Đăng ký thành công!', user: newUser });
+    
+    const { password: _, ...safeUser } = newUser;
+    return res.json({ status: 'success', message: 'Đăng ký thành công!', user: safeUser, token });
 });
 
-// 2. Đăng nhập chuẩn
+// 2. Đăng nhập
 app.post('/api/auth/login', (req, res) => {
     const { loginId, password } = req.body;
     const db = loadDB();
     const user = db.users.find(u => (u.username.toLowerCase() === loginId.toLowerCase() || u.email.toLowerCase() === loginId.toLowerCase()) && u.password === password);
-    if (!user) {
-        return res.status(401).json({ status: 'error', message: 'Sai tài khoản, email hoặc mật khẩu!' });
-    }
-    return res.json({ status: 'success', message: 'Đăng nhập thành công!', user });
+    
+    if (!user) return res.status(401).json({ status: 'error', message: 'Sai tài khoản hoặc mật khẩu!' });
+
+    user.token = generateToken(); // Reset token mỗi lần login
+    saveDB(db);
+    
+    const { password: _, ...safeUser } = user;
+    return res.json({ status: 'success', message: 'Đăng nhập thành công!', user: safeUser, token: user.token });
 });
 
-// 3. Đăng nhập Google / GitHub
-app.post('/api/auth/social', (req, res) => {
-    const { provider, email, name, avatar } = req.body;
-    const db = loadDB();
-    let user = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
+// 3. Kích hoạt KEY VIP (Tính giờ thực)
+app.post('/api/key/redeem', authenticate, (req, res) => {
+    const { keyCode } = req.body;
+    const user = req.user;
+    const db = req.db;
 
-    if (!user) {
-        user = {
-            id: 'AK_' + Math.floor(1000 + Math.random() * 9000),
-            username: email.split('@')[0],
-            password: 'OAuth_Pass_' + Math.random().toString(36),
-            displayName: name || 'Khách ' + provider,
-            email: email,
-            balance: 0,
-            vipLevel: 'Thành Viên',
-            vipExpire: 'Chưa kích hoạt',
-            avatar: avatar || '',
-            provider: provider,
-            createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
-        };
-        db.users.unshift(user);
-        saveDB(db);
+    const key = db.keys.find(k => k.code === keyCode.trim().toUpperCase() && !k.isUsed);
+    if (!key) return res.status(400).json({ status: 'error', message: 'Mã Key không tồn tại hoặc đã được sử dụng!' });
+
+    // Tính thời gian
+    const now = Date.now();
+    let durationMs = 0;
+    if (key.duration.includes('Ngày')) durationMs = parseInt(key.duration) * 24 * 60 * 60 * 1000;
+    else if (key.duration.includes('Giờ')) durationMs = parseInt(key.duration) * 60 * 60 * 1000;
+    
+    key.isUsed = true;
+    key.usedBy = user.username;
+    key.usedAt = now;
+
+    user.vipLevel = key.vipName;
+    if (key.duration === 'Vô Hạn') {
+        user.vipExpiresAt = 'FOREVER';
+    } else {
+        user.vipExpiresAt = (user.vipExpiresAt && user.vipExpiresAt !== 'FOREVER' && user.vipExpiresAt > now) 
+            ? user.vipExpiresAt + durationMs 
+            : now + durationMs;
     }
-    return res.json({ status: 'success', message: `Đăng nhập qua ${provider} thành công!`, user });
+
+    saveDB(db);
+    const { password: _, ...safeUser } = user;
+    return res.json({ status: 'success', message: `Đã kích hoạt ${key.vipName} thành công!`, user: safeUser });
 });
 
-// 4. Đổi Avatar & Thông tin
-app.post('/api/user/update', (req, res) => {
-    const { userId, displayName, avatar, oldPassword, newPassword } = req.body;
-    const db = loadDB();
-    const user = db.users.find(u => u.id === userId);
-    if (!user) return res.status(404).json({ status: 'error', message: 'Không tìm thấy tài khoản!' });
+// 4. Update thông tin (Có xác thực)
+app.post('/api/user/update', authenticate, (req, res) => {
+    const { displayName, avatar, oldPassword, newPassword } = req.body;
+    const user = req.user;
+    const db = req.db;
 
     if (displayName) user.displayName = displayName;
     if (avatar !== undefined) user.avatar = avatar;
 
     if (newPassword) {
-        if (user.password !== oldPassword) {
-            return res.status(400).json({ status: 'error', message: 'Mật khẩu cũ không chính xác!' });
-        }
+        if (user.password !== oldPassword) return res.status(400).json({ status: 'error', message: 'Mật khẩu hiện tại sai!' });
         user.password = newPassword;
     }
 
     saveDB(db);
-    return res.json({ status: 'success', message: 'Đã lưu thay đổi tài khoản!', user });
+    const { password: _, ...safeUser } = user;
+    return res.json({ status: 'success', message: 'Cập nhật tài khoản thành công!', user: safeUser });
 });
 
-// 5. Yêu cầu nạp tiền
-app.post('/api/deposit/create', (req, res) => {
-    const { userId, amount } = req.body;
-    const db = loadDB();
-    const user = db.users.find(u => u.id === userId);
-    if (!user) return res.status(404).json({ status: 'error', message: 'Tài khoản không tồn tại!' });
-
-    const newDeposit = {
-        id: 'NAP_' + Math.floor(100000 + Math.random() * 900000),
-        userId: user.id,
-        username: user.username,
-        displayName: user.displayName,
-        amount: Number(amount),
-        status: 'Chờ duyệt',
-        createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
-    };
-
-    db.deposits.unshift(newDeposit);
-    saveDB(db);
-    return res.json({ status: 'success', deposit: newDeposit });
-});
-
-// 6. Nhập Key kích hoạt VIP
-app.post('/api/key/redeem', (req, res) => {
-    const { userId, keyCode } = req.body;
-    const db = loadDB();
-    const user = db.users.find(u => u.id === userId);
-    if (!user) return res.status(404).json({ status: 'error', message: 'Tài khoản không hợp lệ!' });
-
-    const key = db.keys.find(k => k.code === keyCode.trim().toUpperCase() && !k.isUsed);
-    if (!key) {
-        return res.status(400).json({ status: 'error', message: 'Mã Key không tồn tại hoặc đã qua sử dụng!' });
+// 5. Kiểm tra quyền truy cập Tool
+app.post('/api/tool/access', authenticate, (req, res) => {
+    const user = req.user;
+    if (!user.vipExpiresAt || (user.vipExpiresAt !== 'FOREVER' && Date.now() > user.vipExpiresAt)) {
+        return res.status(403).json({ status: 'error', message: 'Gói VIP của bạn đã hết hạn. Vui lòng nạp Key mới để tiếp tục!' });
     }
-
-    key.isUsed = true;
-    key.usedBy = user.username;
-    user.vipLevel = key.vipName;
-    user.vipExpire = key.duration;
-
-    saveDB(db);
-    return res.json({ status: 'success', message: `Kích hoạt thành công gói ${key.vipName}!`, user });
+    return res.json({ status: 'success', message: 'Truy cập thuật toán thành công!' });
 });
 
-// 7. Mua VIP bằng số dư
-app.post('/api/vip/buy', (req, res) => {
-    const { userId, packageName, price, duration } = req.body;
-    const db = loadDB();
-    const user = db.users.find(u => u.id === userId);
-    if (!user) return res.status(404).json({ status: 'error', message: 'Tài khoản không hợp lệ!' });
-
-    if (user.balance < price) {
-        return res.status(400).json({ status: 'error', message: 'Số dư không đủ, vui lòng nạp thêm tiền!' });
-    }
-
-    user.balance -= price;
-    user.vipLevel = packageName;
-    user.vipExpire = duration;
-
-    saveDB(db);
-    return res.json({ status: 'success', message: `Nâng cấp thành công gói ${packageName}!`, user });
-});
-
-// ==================== CỔNG ADMIN MÁY CHỦ ====================
+// ================= ADMIN SERVER =================
 function authAdmin(req, res, next) {
-    const key = req.headers['x-admin-key'] || req.query.admin_key;
-    if (key !== ADMIN_SECRET) {
-        return res.status(403).json({ status: 'error', message: 'Từ chối quyền truy cập!' });
-    }
+    const key = req.headers['x-admin-key'];
+    if (key !== ADMIN_SECRET) return res.status(403).json({ status: 'error', message: 'Từ chối quyền truy cập!' });
     next();
 }
 
 app.get('/api/admin/overview', authAdmin, (req, res) => {
     const db = loadDB();
-    res.json({ status: 'success', users: db.users, deposits: db.deposits, keys: db.keys });
-});
-
-app.post('/api/admin/deposit/action', authAdmin, (req, res) => {
-    const { depositId, action } = req.body;
-    const db = loadDB();
-    const deposit = db.deposits.find(d => d.id === depositId);
-    if (!deposit || deposit.status !== 'Chờ duyệt') {
-        return res.status(400).json({ status: 'error', message: 'Hóa đơn không hợp lệ hoặc đã duyệt!' });
-    }
-
-    if (action === 'approve') {
-        const user = db.users.find(u => u.id === deposit.userId);
-        if (user) user.balance += deposit.amount;
-        deposit.status = 'Đã cộng tiền';
-    } else {
-        deposit.status = 'Từ chối';
-    }
-
-    saveDB(db);
-    res.json({ status: 'success', message: 'Thao tác duyệt thành công!' });
+    res.json({ status: 'success', users: db.users, keys: db.keys });
 });
 
 app.post('/api/admin/keys/create', authAdmin, (req, res) => {
     const { vipName, duration, count } = req.body;
     const db = loadDB();
-    const amount = Number(count) || 1;
-
-    for (let i = 0; i < amount; i++) {
+    for (let i = 0; i < (count || 1); i++) {
         db.keys.unshift({
-            code: 'AK_' + Math.random().toString(36).substring(2, 6).toUpperCase() + '_' + Math.random().toString(36).substring(2, 6).toUpperCase(),
-            vipName,
-            duration,
-            isUsed: false,
-            usedBy: null,
-            createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16)
+            code: 'AK_' + crypto.randomBytes(3).toString('hex').toUpperCase() + '_' + crypto.randomBytes(3).toString('hex').toUpperCase(),
+            vipName, duration, isUsed: false, usedBy: null, createdAt: Date.now()
         });
     }
-
     saveDB(db);
-    res.json({ status: 'success', message: `Đã tạo ${amount} mã Key mới!` });
+    res.json({ status: 'success', message: `Đã tạo Key thành công!` });
 });
 
-// Cổng trang Admin
-app.get('/admin', (req, res) => {
-    const adminPath = fs.existsSync(path.join(__dirname, 'public', 'admin.html'))
-        ? path.join(__dirname, 'public', 'admin.html')
-        : path.join(__dirname, 'admin.html');
-    res.sendFile(adminPath);
-});
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// Cổng trang Web Client (Đã sửa tương thích Express 5 và Node 24)
-app.use((req, res) => {
-    const indexPath = fs.existsSync(path.join(__dirname, 'public', 'index.html'))
-        ? path.join(__dirname, 'public', 'index.html')
-        : path.join(__dirname, 'index.html');
-    res.sendFile(indexPath);
-});
-
-app.listen(PORT, () => {
-    console.log(`[PORTAL ANH KHOI] May chu dang chay tai cong: ${PORT}`);
-});
+app.listen(PORT, () => console.log(`Máy chủ NOEL PORTAL chạy tại cổng: ${PORT}`));
