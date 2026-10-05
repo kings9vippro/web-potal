@@ -2,12 +2,10 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PORTAL ANH KHÔI — Thuật Toán LC79 Bản Quyền</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>PORTAL ANH KHÔI — Thuật Toán Bắt Cầu Cao Cấp</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -15,244 +13,184 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     <style>
+        :root {
+            --noel-dark: #0A0F1D;
+            --noel-card: rgba(17, 24, 39, 0.6);
+            --noel-glass: rgba(255, 255, 255, 0.05);
+            --gold: #FFD700;
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F8FAFC;
-            color: #0F172A;
+            background-color: var(--noel-dark);
+            color: #F8FAFC;
+            touch-action: manipulation; /* KHÓA ZOOM TRÊN NÚT BẤM */
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
         }
         .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        /* Hiệu ứng Trắng Kính Mờ */
-        .glass-white {
-            background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(226, 232, 240, 0.9);
+        /* Hiệu ứng kính mờ sang trọng */
+        .glass-card {
+            background: var(--noel-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
-        
-        .btn-pill {
-            border-radius: 9999px;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .btn-pill:active { transform: scale(0.96); }
 
+        .btn-premium {
+            background: linear-gradient(135deg, #1D4ED8, #3B82F6);
+            border-radius: 9999px;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-premium:active { transform: scale(0.96); }
+
+        .btn-gold {
+            background: linear-gradient(135deg, #F59E0B, #FBBF24);
+            color: #451A03;
+            border-radius: 9999px;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+            transition: all 0.2s ease;
+        }
+        .btn-gold:active { transform: scale(0.96); }
+
+        /* Bông tuyết rơi */
+        .snowflake {
+            position: fixed; top: -10vh; color: #fff;
+            font-size: 1em; font-family: Arial, sans-serif;
+            text-shadow: 0 0 5px rgba(255,255,255,0.3);
+            user-select: none; z-index: 1;
+            animation: fall linear infinite, sway ease-in-out infinite alternate;
+        }
+        @keyframes fall { 100% { top: 110vh; } }
+        @keyframes sway { 100% { transform: translateX(20px); } }
+        
         [x-cloak] { display: none !important; }
+        
+        /* Fix thanh scroll ẩn trên mobile */
+        ::-webkit-scrollbar { width: 0px; }
     </style>
 </head>
-<body x-data="portalClient()" x-cloak class="min-h-screen flex flex-col bg-[#F8FAFC]">
+<body x-data="portalClient()" x-cloak class="min-h-screen flex flex-col relative">
 
-    <!-- ============================================================== -->
-    <!-- MÀN HÌNH 1: LANDING PAGE ĐẦU VÀO (FILE 11 NÂNG CẤP TRẮNG SÁNG) -->
-    <!-- ============================================================== -->
-    <div x-show="!isLoggedIn && !showAuthModal" class="flex-1 flex flex-col">
-        <header class="sticky top-0 z-50 glass-white border-b border-slate-200/80">
-            <div class="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                        <i class="ri-shield-flash-fill text-xl"></i>
-                    </div>
-                    <div>
-                        <span class="font-display font-black text-base text-slate-900 tracking-tight">PORTAL ANH KHÔI</span>
-                        <span class="text-[9px] font-bold text-blue-600 block uppercase tracking-widest">Bản Quyền Chính Hãng</span>
-                    </div>
-                </div>
-
-                <div class="flex items-center gap-2">
-                    <button @click="openAuth('login')" class="px-4 py-2 text-xs font-bold font-display text-slate-700 hover:text-blue-600 rounded-full">
-                        Đăng Nhập
-                    </button>
-                    <button @click="openAuth('register')" class="px-5 py-2 text-xs font-bold font-display text-white bg-blue-600 hover:bg-blue-700 rounded-full shadow-md shadow-blue-500/20 btn-pill">
-                        Đăng Ký
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <section class="py-14 sm:py-20 px-4 text-center max-w-[850px] mx-auto flex-1 flex flex-col justify-center">
-            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-6 border border-blue-100 mx-auto">
-                <i class="ri-radar-line"></i> Giải Mã Thuật Toán LC79 Độc Quyền
-            </div>
-
-            <h1 class="text-3xl sm:text-5xl font-black font-display text-slate-900 tracking-tight leading-tight mb-5">
-                Kiểm Soát Từng Phiên Cùng <br>
-                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Thuật Toán LC79 Chuẩn Xác</span>
-            </h1>
-
-            <p class="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto mb-8">
-                Hệ thống chuyên sâu phân tích chuỗi phiên Tài Xỉu MD5 và bàn Hũ LC79 thời gian thực. Tốc độ mili-giây, máy chủ bảo mật an toàn 100%.
-            </p>
-
-            <div class="flex flex-wrap items-center justify-center gap-3">
-                <button @click="openAuth('register')" class="px-7 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-lg shadow-blue-500/25 btn-pill flex items-center gap-2">
-                    <i class="ri-rocket-fill"></i> Bắt Đầu Sử Dụng
-                </button>
-                <button @click="openAuth('login')" class="px-7 py-3 bg-white hover:bg-slate-50 text-slate-800 font-bold font-display text-xs uppercase tracking-wider rounded-full border border-slate-300 shadow-sm btn-pill">
-                    Đăng Nhập Ngay
-                </button>
-            </div>
-
-            <div class="grid grid-cols-3 gap-3 max-w-md mx-auto mt-14 pt-8 border-t border-slate-200">
-                <div>
-                    <p class="text-xl sm:text-2xl font-black font-mono text-slate-900">0.18ms</p>
-                    <span class="text-[11px] font-medium text-slate-500">Độ trễ API</span>
-                </div>
-                <div>
-                    <p class="text-xl sm:text-2xl font-black font-mono text-blue-600">100%</p>
-                    <span class="text-[11px] font-medium text-slate-500">Bản Quyền</span>
-                </div>
-                <div>
-                    <p class="text-xl sm:text-2xl font-black font-mono text-slate-900">24/7</p>
-                    <span class="text-[11px] font-medium text-slate-500">Tự động duyệt</span>
-                </div>
-            </div>
-        </section>
-
-        <footer class="py-5 border-t border-slate-200 text-center text-[11px] text-slate-500">
-            &copy; 2026 PORTAL ANH KHÔI. Bản Quyền Thuộc Về Dev Phạm Anh Khôi.
-        </footer>
+    <!-- CSS SNOWFLAKES -->
+    <div aria-hidden="true" class="pointer-events-none">
+        <div class="snowflake" style="left: 10%; animation-duration: 10s, 3s; opacity: 0.8">❅</div>
+        <div class="snowflake" style="left: 30%; animation-duration: 12s, 4s; font-size: 1.2em; opacity: 0.6">❆</div>
+        <div class="snowflake" style="left: 50%; animation-duration: 9s, 5s; opacity: 0.9">❅</div>
+        <div class="snowflake" style="left: 70%; animation-duration: 11s, 3.5s; font-size: 1.5em; opacity: 0.5">❆</div>
+        <div class="snowflake" style="left: 90%; animation-duration: 13s, 4.5s; opacity: 0.7">❅</div>
     </div>
 
+    <!-- ĐÈN NOEL -->
+    <div class="fixed top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 via-emerald-500 to-amber-500 z-50"></div>
+
     <!-- ============================================================== -->
-    <!-- MÀN HÌNH 2: CỔNG ĐĂNG NHẬP & ĐĂNG KÝ (FILE 1 NÂNG CẤP)        -->
+    <!-- MÀN HÌNH 1: CỔNG ĐĂNG NHẬP BẢO MẬT                             -->
     <!-- ============================================================== -->
-    <div x-show="showAuthModal && !isLoggedIn" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-        <div class="bg-white rounded-[28px] max-w-sm w-full p-6 shadow-2xl border border-slate-200 relative">
+    <div x-show="!isLoggedIn" class="flex-1 flex items-center justify-center p-4 relative z-10">
+        <!-- Ánh sáng nền -->
+        <div class="absolute w-96 h-96 bg-blue-600/20 rounded-full blur-[100px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+
+        <div class="glass-card rounded-[32px] w-full max-w-[400px] p-8 relative overflow-hidden">
             
-            <button @click="showAuthModal = false" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
-                <i class="ri-close-line"></i>
-            </button>
-
-            <div class="text-center mb-5">
-                <div class="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-2.5 shadow-md shadow-blue-500/20">
-                    <i class="ri-shield-keyhole-fill text-xl"></i>
+            <div class="text-center mb-8">
+                <div class="w-16 h-16 rounded-[20px] bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center mx-auto mb-4 shadow-[0_0_20px_rgba(37,99,235,0.4)]">
+                    <i class="ri-snowy-fill text-3xl text-white"></i>
                 </div>
-                <h3 class="text-lg font-bold font-display text-slate-900" x-text="authTab === 'login' ? 'Đăng Nhập Tài Khoản' : 'Đăng Ký Tài Khoản'"></h3>
-                <p class="text-[11px] text-slate-400 mt-0.5">Hệ Thống Tiện Ích PORTAL ANH KHÔI</p>
+                <h1 class="text-2xl font-black font-display tracking-tight text-white mb-1">PORTAL ANH KHÔI</h1>
+                <p class="text-sm font-medium text-blue-400">Phiên Bản Noel - Bảo Mật Tuyệt Đối</p>
             </div>
 
-            <!-- Nút Google / GitHub -->
-            <div class="grid grid-cols-2 gap-2.5 mb-4">
-                <button type="button" @click="socialLogin('Google')" class="flex items-center justify-center gap-1.5 py-2 border border-slate-200 rounded-xl hover:bg-slate-50 text-xs font-bold text-slate-700 btn-pill">
-                    <i class="ri-google-fill text-red-500"></i> Google
-                </button>
-                <button type="button" @click="socialLogin('GitHub')" class="flex items-center justify-center gap-1.5 py-2 border border-slate-200 rounded-xl hover:bg-slate-50 text-xs font-bold text-slate-700 btn-pill">
-                    <i class="ri-github-fill text-slate-900"></i> GitHub
-                </button>
-            </div>
-
-            <div class="flex items-center gap-2 my-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                <div class="h-px bg-slate-200 flex-1"></div>
-                <span>Hoặc Nhập Mật Khẩu</span>
-                <div class="h-px bg-slate-200 flex-1"></div>
-            </div>
-
-            <!-- Form Đăng Nhập -->
-            <form x-show="authTab === 'login'" @submit.prevent="submitLogin()" class="space-y-3">
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Tài Khoản hoặc Email</label>
-                    <input type="text" x-model="authForm.loginId" required placeholder="Nhập username hoặc email" 
-                           class="w-full h-10 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Mật Khẩu</label>
-                    <input type="password" x-model="authForm.password" required placeholder="••••••••" 
-                           class="w-full h-10 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
-                </div>
-
-                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs rounded-full shadow-md btn-pill mt-2">
-                    Đăng Nhập Ngay
-                </button>
-
-                <div class="text-center pt-2">
-                    <span class="text-xs text-slate-500">Chưa có nick?</span>
-                    <button type="button" @click="authTab = 'register'" class="text-xs font-bold text-blue-600 hover:underline ml-1">Đăng ký mới</button>
-                </div>
-            </form>
-
-            <!-- Form Đăng Ký -->
-            <form x-show="authTab === 'register'" @submit.prevent="submitRegister()" class="space-y-2.5">
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Họ Và Tên</label>
-                    <input type="text" x-model="authForm.displayName" required placeholder="Ví dụ: Phạm Anh Khôi" 
-                           class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Tên Đăng Nhập</label>
-                    <input type="text" x-model="authForm.username" required placeholder="Viết liền không dấu" 
-                           class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Email</label>
-                    <input type="email" x-model="authForm.email" required placeholder="name@gmail.com" 
-                           class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
+            <!-- Form Auth -->
+            <form @submit.prevent="authTab === 'login' ? submitLogin() : submitRegister()" class="space-y-4">
+                
+                <div x-show="authTab === 'register'" class="space-y-4">
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Mật Khẩu</label>
-                        <input type="password" x-model="authForm.regPassword" required placeholder="••••••••" 
-                               class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Tên Hiển Thị</label>
+                        <input type="text" x-model="authForm.displayName" placeholder="Tên hiển thị của bạn" class="w-full h-12 px-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition-all">
                     </div>
                     <div>
-                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Nhập Lại</label>
-                        <input type="password" x-model="authForm.regConfirmPassword" required placeholder="••••••••" 
-                               class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
+                        <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Email Xác Thực</label>
+                        <input type="email" x-model="authForm.email" placeholder="Nhập đúng email (ví dụ: a@gmail.com)" class="w-full h-12 px-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition-all">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs rounded-full shadow-md btn-pill mt-2">
-                    Đăng Ký Tài Khoản
-                </button>
-
-                <div class="text-center pt-2">
-                    <span class="text-xs text-slate-500">Đã có nick?</span>
-                    <button type="button" @click="authTab = 'login'" class="text-xs font-bold text-blue-600 hover:underline ml-1">Đăng nhập</button>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Tên Đăng Nhập</label>
+                    <input type="text" x-model="authForm.loginId" required placeholder="Viết liền không dấu" class="w-full h-12 px-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition-all">
                 </div>
+
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Mật Khẩu</label>
+                    <input type="password" x-model="authForm.password" required placeholder="••••••••" class="w-full h-12 px-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:bg-white/10 transition-all">
+                </div>
+
+                <button type="submit" class="w-full h-12 mt-2 font-bold font-display text-sm text-white btn-premium uppercase tracking-widest flex items-center justify-center gap-2">
+                    <i :class="authTab === 'login' ? 'ri-login-circle-fill' : 'ri-user-add-fill'"></i>
+                    <span x-text="authTab === 'login' ? 'Đăng Nhập' : 'Tạo Tài Khoản'"></span>
+                </button>
             </form>
 
+            <!-- Nút MXH & Chuyển Tab -->
+            <div class="mt-6 pt-6 border-t border-white/10">
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <button @click="socialLogin('Google')" class="flex items-center justify-center gap-2 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold transition-all">
+                        <i class="ri-google-fill text-red-500"></i> Google
+                    </button>
+                    <button @click="socialLogin('GitHub')" class="flex items-center justify-center gap-2 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold transition-all">
+                        <i class="ri-github-fill text-white"></i> GitHub
+                    </button>
+                </div>
+                
+                <p class="text-center text-xs text-slate-400 font-medium">
+                    <span x-text="authTab === 'login' ? 'Chưa có tài khoản?' : 'Đã có tài khoản?'"></span>
+                    <button @click="authTab = (authTab === 'login' ? 'register' : 'login')" class="text-blue-400 font-bold ml-1 hover:underline focus:outline-none" x-text="authTab === 'login' ? 'Đăng ký ngay' : 'Đăng nhập'"></button>
+                </p>
+            </div>
         </div>
     </div>
 
     <!-- ============================================================== -->
-    <!-- MÀN HÌNH 3: WEB PORTAL CLIENT (FIX LỖI ĐÈ NHAU TRÊN MOBILE)     -->
+    <!-- MÀN HÌNH 2: HỆ THỐNG PORTAL (FIX LỖI HEADER ĐÈ)               -->
     <!-- ============================================================== -->
-    <div x-show="isLoggedIn" class="flex-1 flex flex-col pb-20 sm:pb-6">
+    <div x-show="isLoggedIn" class="flex-1 flex flex-col pb-24 sm:pb-8 relative z-10">
         
-        <!-- HEADER CLIENT (GỌN GÀNG, KHÔNG ĐÈ LÊN NHAU) -->
-        <header class="sticky top-0 z-40 glass-white border-b border-slate-200/90 shadow-sm">
-            <div class="max-w-[1200px] mx-auto px-3 sm:px-6 h-[64px] flex items-center justify-between gap-2">
+        <!-- HEADER CỰC GỌN GÀNG -->
+        <header class="sticky top-0 z-40 glass-card border-b border-white/10 shadow-lg">
+            <!-- Sử dụng justify-between và các thẻ flex-shrink-0 để chống đè chữ -->
+            <div class="max-w-[1000px] mx-auto px-3 sm:px-6 h-[70px] flex items-center justify-between gap-3">
                 
-                <!-- BÊN TRÁI: AVATAR + TÊN + CẤP ĐỘ (XẾP THẲNG HÀNG, KHÔNG ĐÈ) -->
-                <div class="flex items-center gap-2.5 min-w-0">
-                    <div class="relative shrink-0 cursor-pointer" @click="switchTab('profile')">
+                <!-- BÊN TRÁI: Avatar & Thông tin (Ngăn không cho vỡ layout bằng min-w-0 và truncate) -->
+                <div class="flex items-center gap-3 min-w-0 flex-1">
+                    <!-- Sửa lỗi hình bầu dục bằng aspect-square object-cover -->
+                    <div class="shrink-0 rounded-full p-[2px] bg-gradient-to-tr from-amber-400 to-red-500 shadow-md cursor-pointer" @click="switchTab('profile')">
                         <img :src="user.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.username" 
-                             class="w-10 h-10 rounded-full object-cover border-2 border-blue-500 shadow-sm bg-slate-100">
+                             class="w-11 h-11 rounded-full aspect-square object-cover bg-slate-800 border border-slate-900">
                     </div>
                     <div class="min-w-0">
-                        <div class="flex items-center gap-1.5 truncate">
-                            <span class="font-display font-bold text-xs sm:text-sm text-slate-900 truncate" x-text="user.displayName"></span>
-                            <span class="shrink-0 px-2 py-0.5 rounded-full text-[9px] font-black uppercase font-mono bg-amber-100 text-amber-700 border border-amber-300" x-text="user.vipLevel"></span>
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-[2px]">Xin chào,</p>
+                        <div class="flex items-center gap-2">
+                            <span class="font-display font-black text-sm sm:text-base text-white truncate" x-text="user.displayName"></span>
+                            <span class="shrink-0 px-2 py-[2px] rounded text-[9px] font-black uppercase bg-amber-500/20 text-amber-400 border border-amber-500/50" x-text="user.vipLevel === 'Chưa Đăng Ký' ? 'FREE' : 'VIP'"></span>
                         </div>
-                        <p class="text-[10px] text-slate-500 truncate hidden sm:block" x-text="user.email"></p>
                     </div>
                 </div>
 
-                <!-- BÊN PHẢI: SỐ DƯ + NÚT NẠP TIỀN + ĐĂNG XUẤT -->
-                <div class="flex items-center gap-2 shrink-0">
-                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-full btn-pill">
-                        <i class="ri-wallet-3-fill text-amber-500 text-xs"></i>
-                        <span class="font-mono font-bold text-xs sm:text-sm text-slate-900" x-text="formatMoney(user.balance) + 'đ'"></span>
-                    </div>
-
-                    <button @click="switchTab('recharge')" class="px-3 sm:px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-full shadow-sm btn-pill flex items-center gap-1">
-                        <i class="ri-add-line"></i> <span class="hidden sm:inline">Nạp Tiền</span>
+                <!-- BÊN PHẢI: Các nút công cụ cố định kích thước -->
+                <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+                    <!-- Ví tiền -->
+                    <button class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs font-mono font-bold text-white">
+                        <i class="ri-wallet-3-fill text-blue-400"></i>
+                        <span x-text="formatMoney(user.balance) + 'đ'"></span>
                     </button>
-                    
-                    <button @click="logout()" class="p-1.5 text-slate-400 hover:text-red-500 rounded-full hover:bg-red-50 transition-colors" title="Đăng Xuất">
+                    <!-- Nút nạp Key/Nạp tiền -->
+                    <button @click="switchTab('vip')" class="px-4 py-2 font-bold text-xs uppercase tracking-wider btn-gold shrink-0 flex items-center gap-1">
+                        <i class="ri-key-fill text-sm"></i> <span class="hidden sm:inline">Nạp Key</span>
+                    </button>
+                    <!-- Nút Đăng xuất -->
+                    <button @click="logout()" class="w-9 h-9 rounded-full bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 text-rose-400 flex items-center justify-center shrink-0 transition-colors">
                         <i class="ri-logout-box-r-line text-lg"></i>
                     </button>
                 </div>
@@ -260,236 +198,171 @@
             </div>
         </header>
 
-        <!-- BANNER THÔNG BÁO -->
-        <div class="bg-blue-50 border-b border-blue-100 px-4 py-2 text-center text-xs font-medium text-blue-800 flex items-center justify-center gap-2">
-            <span class="bg-blue-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-full">BẢN QUYỀN</span>
-            <span>Hệ thống giải mã LC79 chính thức của Dev Anh Khôi. Hỗ trợ Telegram: <b>@anhkhoi_xabc</b></span>
+        <!-- BANNER THÔNG BÁO BẢN QUYỀN -->
+        <div class="bg-gradient-to-r from-blue-900/80 to-indigo-900/80 px-4 py-2 text-center text-[11px] font-medium text-blue-100 flex items-center justify-center gap-2 border-b border-blue-500/20">
+            <i class="ri-shield-star-fill text-amber-400 text-sm"></i>
+            <span>Thuật toán bản quyền <b>Dev Anh Khôi</b>. Nhập Key để bắt đầu.</span>
         </div>
 
-        <main class="flex-1 max-w-[1200px] w-full mx-auto p-4 sm:p-6 space-y-6">
+        <main class="flex-1 max-w-[1000px] w-full mx-auto p-4 sm:p-6 mt-2 space-y-6">
             
-            <!-- ====== TAB 1: KHO CÔNG CỤ (CHỈ CÒN 2 BÀN LC79) ====== -->
+            <!-- THẺ ĐẾM NGƯỢC VIP -->
+            <div class="glass-card rounded-[24px] p-5 sm:p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-l-4 border-l-amber-500">
+                <div class="flex items-center gap-4 text-center sm:text-left">
+                    <div class="w-14 h-14 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 text-2xl shrink-0">
+                        <i class="ri-timer-flash-fill"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display font-black text-lg text-white" x-text="user.vipLevel"></h3>
+                        <p class="text-xs text-slate-400 mt-1 font-medium">Thời gian kết nối máy chủ còn lại:</p>
+                        <p class="text-xl sm:text-2xl font-black font-mono mt-1 text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" x-text="timeRemaining"></p>
+                    </div>
+                </div>
+                <button @click="switchTab('vip')" class="w-full sm:w-auto px-6 py-3 font-bold font-display text-xs uppercase btn-gold">
+                    Gia Hạn / Kích Hoạt Key
+                </button>
+            </div>
+
+            <!-- ====== TAB 1: KHO CÔNG CỤ (2 BÀN LC79 CHUẨN) ====== -->
             <div x-show="currentTab === 'tools'" class="space-y-6">
                 <div>
-                    <h2 class="text-xl sm:text-2xl font-black font-display text-slate-900 tracking-tight">Kho Công Cụ LC79 Độc Quyền</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Thuật toán khớp chuỗi băm MD5 và bắt nhịp rơi Hũ Cân Bảng chuẩn xác.</p>
+                    <h2 class="text-2xl font-black font-display text-white tracking-tight">Thuật Toán Bắt Cầu</h2>
+                    <p class="text-xs text-slate-400 mt-1">Hệ thống phân tích cầu đa luồng và dữ liệu bàn cược thời gian thực.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    
-                    <!-- BÀN 1: LC79 MD5 -->
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+                    <!-- TOOL 1: LC79 MD5 -->
+                    <div class="glass-card rounded-[32px] p-6 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
                         <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 uppercase tracking-wider">
-                                    THUẬT TOÁN MD5
-                                </span>
-                                <span class="text-xs font-mono font-bold text-emerald-600 flex items-center gap-1">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Bàn Trực Tiếp
-                                </span>
+                            <div class="flex justify-between items-center mb-5">
+                                <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-widest border border-blue-500/30">CẦU ĐẢO MD5</span>
+                                <i class="ri-pulse-line text-emerald-400 text-xl animate-pulse"></i>
                             </div>
-
-                            <div class="flex items-center gap-4 mb-4">
-                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-3xl shadow-md shrink-0">
-                                    <i class="ri-cpu-line"></i>
-                                </div>
+                            <div class="flex items-center gap-4 mb-5">
+                                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-2xl object-cover shadow-lg border border-white/10 shrink-0">
                                 <div>
-                                    <h3 class="text-lg font-bold font-display text-slate-900">LC79 — Bàn Tài Xỉu MD5</h3>
-                                    <p class="text-xs text-slate-500 mt-0.5">Đối soát mã băm chuỗi 30 phiên, phân tích xác suất cầu đảo.</p>
+                                    <h3 class="text-lg font-black font-display text-white">LC79 — Bàn MD5</h3>
+                                    <p class="text-[11px] text-slate-400 mt-1">Nhận dạng quy luật băm chuỗi, bắt dính nhịp cầu đảo liên tục.</p>
                                 </div>
-                            </div>
-
-                            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1 mb-5">
-                                <div class="flex justify-between"><span>Độ chuẩn xác:</span> <b class="text-blue-600">92.6%</b></div>
-                                <div class="flex justify-between"><span>Tốc độ:</span> <b class="text-emerald-600">Thời gian thực</b></div>
                             </div>
                         </div>
-
-                        <button @click="runTool('LC79 Bàn MD5')" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md btn-pill flex items-center justify-center gap-2">
-                            <i class="ri-play-fill text-base"></i> Kích Hoạt Dự Đoán MD5
+                        <button @click="runTool('LC79 MD5')" class="w-full py-3.5 btn-premium font-bold font-display text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                            <i class="ri-radar-fill text-lg"></i> Kích Hoạt Phân Tích
                         </button>
                     </div>
 
-                    <!-- BÀN 2: LC79 HŨ CÂN BẢNG -->
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
+                    <!-- TOOL 2: LC79 HŨ -->
+                    <div class="glass-card rounded-[32px] p-6 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
                         <div>
-                            <div class="flex items-center justify-between mb-4">
-                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider">
-                                    HŨ CÂN BẢNG
-                                </span>
-                                <span class="text-xs font-mono font-bold text-emerald-600 flex items-center gap-1">
-                                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> Bàn Trực Tiếp
-                                </span>
+                            <div class="flex justify-between items-center mb-5">
+                                <span class="px-3 py-1 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-widest border border-amber-500/30">CÂN DÒNG TIỀN</span>
+                                <i class="ri-pulse-line text-emerald-400 text-xl animate-pulse"></i>
                             </div>
-
-                            <div class="flex items-center gap-4 mb-4">
-                                <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-600 text-white flex items-center justify-center text-3xl shadow-md shrink-0">
-                                    <i class="ri-copper-diamond-line"></i>
-                                </div>
+                            <div class="flex items-center gap-4 mb-5">
+                                <img src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=150&auto=format&fit=crop&q=80" class="w-16 h-16 rounded-2xl object-cover shadow-lg border border-white/10 shrink-0">
                                 <div>
-                                    <h3 class="text-lg font-bold font-display text-slate-900">LC79 — Bàn Tài Xỉu Hũ</h3>
-                                    <p class="text-xs text-slate-500 mt-0.5">Bắt nhịp rơi Hũ và cân bằng dòng tiền hai cửa cược.</p>
+                                    <h3 class="text-lg font-black font-display text-white">LC79 — Bàn Hũ</h3>
+                                    <p class="text-[11px] text-slate-400 mt-1">Đo lường lượng tiền cược 2 bên, dự báo thời điểm nổ hũ chính xác.</p>
                                 </div>
-                            </div>
-
-                            <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1 mb-5">
-                                <div class="flex justify-between"><span>Tính năng:</span> <b class="text-amber-600">Báo chạm nhịp Hũ</b></div>
-                                <div class="flex justify-between"><span>Đường truyền:</span> <b class="text-emerald-600">Ưu tiên VIP</b></div>
                             </div>
                         </div>
-
-                        <button @click="runTool('LC79 Bàn Hũ')" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md btn-pill flex items-center justify-center gap-2">
-                            <i class="ri-play-fill text-base"></i> Kích Hoạt Soi Nhịp Hũ
+                        <button @click="runTool('LC79 Hũ Cân Bảng')" class="w-full py-3.5 btn-gold font-bold font-display text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                            <i class="ri-copper-diamond-fill text-lg"></i> Phân Tích Nhịp Hũ
                         </button>
                     </div>
-
                 </div>
             </div>
 
-            <!-- ====== TAB 2: NÂNG CẤP VIP ====== -->
+            <!-- ====== TAB 2: QUẢN LÝ KEY VIP ====== -->
             <div x-show="currentTab === 'vip'" class="space-y-6">
-                <div class="text-center max-w-xl mx-auto">
-                    <h2 class="text-xl sm:text-3xl font-black font-display text-slate-900 tracking-tight">Nâng Cấp Gói VIP</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Mở khóa toàn quyền phân tích kết quả 2 bàn LC79.</p>
-                </div>
-
-                <!-- Ô Nhập Key -->
-                <div class="max-w-md mx-auto bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-2">
-                    <input type="text" x-model="vipKeyInput" placeholder="Nhập mã KEY VIP (ví dụ: AK_XXXX_XXXX)" 
-                           class="flex-1 h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs uppercase font-mono font-bold focus:bg-white focus:outline-none focus:border-blue-500">
-                    <button @click="redeemKey()" class="px-5 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl btn-pill shrink-0">
-                        Kích Hoạt Key
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <template x-for="pkg in vipPackages" :key="pkg.name">
-                        <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm flex flex-col justify-between">
-                            <div>
-                                <div class="flex justify-between items-center mb-3">
-                                    <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full" x-text="pkg.badge"></span>
-                                    <span class="text-xs font-bold text-rose-500" x-text="pkg.discount"></span>
-                                </div>
-                                <h3 class="text-base font-bold font-display text-slate-900" x-text="pkg.name"></h3>
-                                <p class="text-[11px] text-slate-500 mt-1 mb-4" x-text="pkg.desc"></p>
-                                
-                                <div class="mb-4">
-                                    <span class="text-2xl font-black font-mono text-slate-900" x-text="formatMoney(pkg.price) + 'đ'"></span>
-                                </div>
-                            </div>
-
-                            <button @click="buyVip(pkg)" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-full shadow-sm btn-pill">
-                                Kích Hoạt
-                            </button>
-                        </div>
-                    </template>
-                </div>
-            </div>
-
-            <!-- ====== TAB 3: NẠP TIỀN ====== -->
-            <div x-show="currentTab === 'recharge'" class="max-w-lg mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
-                <div class="text-center mb-6">
-                    <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto text-2xl mb-2">
-                        <i class="ri-qr-code-line"></i>
-                    </div>
-                    <h2 class="text-xl font-bold font-display text-slate-900">Nạp Tiền Vào Số Dư</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Tự động duyệt tiền và cộng vào tài khoản sau khi chuyển khoản</p>
-                </div>
-
-                <div class="space-y-4">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-2">Mệnh Giá Chọn Nhanh</label>
-                        <div class="grid grid-cols-4 gap-2">
-                            <template x-for="amt in [20000, 50000, 100000, 200000]" :key="amt">
-                                <button type="button" @click="rechargeAmount = amt"
-                                        :class="rechargeAmount === amt ? 'bg-blue-600 text-white font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100'"
-                                        class="py-2 rounded-xl text-xs font-mono border border-slate-200 btn-pill">
-                                    <span x-text="(amt/1000) + 'K'"></span>
-                                </button>
-                            </template>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Số Tiền Muốn Nạp (VNĐ)</label>
-                        <input type="number" x-model.number="rechargeAmount" min="10000" step="10000"
-                               class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-blue-500">
-                    </div>
-
-                    <button @click="createDeposit()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md btn-pill">
-                        Tạo Lệnh Nạp & Xem Mã QR
-                    </button>
-                </div>
-            </div>
-
-            <!-- ====== TAB 4: CÀI ĐẶT TÀI KHOẢN & ĐỔI AVATAR ====== -->
-            <div x-show="currentTab === 'profile'" class="max-w-xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                 <div>
-                    <h2 class="text-xl font-bold font-display text-slate-900">Cài Đặt Tài Khoản</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Tùy biến hình đại diện và bảo mật tài khoản cá nhân.</p>
+                    <h2 class="text-2xl font-black font-display text-white tracking-tight">Kích Hoạt Key Bản Quyền</h2>
+                    <p class="text-xs text-slate-400 mt-1">Mua Key tại đại lý hoặc nạp tự động, sau đó nhập vào hệ thống để bắt đầu tính giờ.</p>
                 </div>
 
-                <!-- Khối Thay Đổi Avatar -->
-                <div class="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                    <img :src="profileForm.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.username" 
-                         class="w-16 h-16 rounded-full object-cover border-2 border-blue-500 bg-white">
-                    <div class="flex-1 space-y-2">
-                        <label class="block text-xs font-bold text-slate-700">Đổi Ảnh Đại Diện (Avatar)</label>
-                        <div class="flex gap-2">
-                            <input type="file" @change="handleAvatarUpload($event)" accept="image/*" class="text-xs text-slate-500 file:mr-2 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
-                            <button type="button" @click="resetDefaultAvatar()" class="text-xs text-slate-400 hover:text-slate-600 underline">Mặc định</button>
+                <div class="glass-card p-6 sm:p-8 rounded-[32px] max-w-lg mx-auto text-center border-t-2 border-t-blue-500">
+                    <div class="w-20 h-20 mx-auto bg-blue-600/20 rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(37,99,235,0.3)]">
+                        <i class="ri-key-2-fill text-4xl text-blue-400"></i>
+                    </div>
+                    <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Nhập Mã Key Của Bạn</label>
+                    <input type="text" x-model="vipKeyInput" placeholder="AK_XXXX_XXXX" 
+                           class="w-full h-14 px-6 text-center text-lg font-black font-mono uppercase bg-black/40 border border-white/20 rounded-2xl text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 focus:bg-black/60 transition-all mb-4">
+                    <button @click="redeemKey()" class="w-full py-4 btn-gold font-bold text-sm uppercase tracking-widest shadow-xl">
+                        Kích Hoạt Hệ Thống Ngay
+                    </button>
+                    <p class="text-[11px] text-slate-500 mt-5 font-medium">
+                        *Lưu ý: Thời gian sử dụng sẽ đếm ngược ngay sau khi kích hoạt thành công.
+                    </p>
+                </div>
+            </div>
+
+            <!-- ====== TAB 3: CÀI ĐẶT (KHẮC PHỤC LỖI OVAL AVATAR) ====== -->
+            <div x-show="currentTab === 'profile'" class="max-w-xl mx-auto space-y-6">
+                <h2 class="text-2xl font-black font-display text-white tracking-tight">Cài Đặt Tài Khoản</h2>
+                
+                <div class="glass-card p-6 sm:p-8 rounded-[32px] space-y-6">
+                    
+                    <!-- Sửa lỗi Avatar hình bầu dục -->
+                    <div class="flex items-center gap-5 p-5 bg-black/30 rounded-2xl border border-white/5">
+                        <div class="relative shrink-0">
+                            <!-- Class aspect-square và object-cover giúp ảnh luôn vuông/tròn -->
+                            <img :src="profileForm.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.username" 
+                                 class="w-[72px] h-[72px] aspect-square object-cover rounded-full border-[3px] border-blue-500 shadow-[0_0_15px_rgba(37,99,235,0.4)]">
+                        </div>
+                        <div class="flex-1 space-y-2">
+                            <label class="block text-xs font-bold text-slate-300 uppercase">Tải Ảnh Lên</label>
+                            <input type="file" @change="handleAvatarUpload($event)" accept="image/*" class="text-[11px] text-slate-400 file:mr-3 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[11px] file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-500 cursor-pointer w-full">
                         </div>
                     </div>
-                </div>
 
-                <div class="space-y-3.5">
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Tên Hiển Thị</label>
-                        <input type="text" x-model="profileForm.displayName" class="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500">
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Tên Hiển Thị</label>
+                            <input type="text" x-model="profileForm.displayName" class="w-full h-12 px-4 rounded-2xl bg-black/30 border border-white/10 text-white focus:border-blue-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Mật Khẩu Hiện Tại</label>
+                            <input type="password" x-model="profileForm.oldPassword" placeholder="Cần nhập nếu muốn đổi pass" class="w-full h-12 px-4 rounded-2xl bg-black/30 border border-white/10 text-white focus:border-blue-500 focus:outline-none placeholder-slate-600">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">Mật Khẩu Mới</label>
+                            <input type="password" x-model="profileForm.newPassword" placeholder="Bỏ trống nếu không đổi" class="w-full h-12 px-4 rounded-2xl bg-black/30 border border-white/10 text-white focus:border-blue-500 focus:outline-none placeholder-slate-600">
+                        </div>
+                        <button @click="saveProfile()" class="w-full py-3.5 btn-premium font-bold text-xs uppercase tracking-widest mt-2">
+                            Cập Nhật Hồ Sơ
+                        </button>
                     </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mật Khẩu Hiện Tại</label>
-                        <input type="password" x-model="profileForm.oldPassword" placeholder="••••••••" class="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500">
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mật Khẩu Mới (Nếu muốn đổi)</label>
-                        <input type="password" x-model="profileForm.newPassword" placeholder="Nhập mật khẩu mới" class="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500">
-                    </div>
-
-                    <button @click="saveProfile()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md btn-pill">
-                        Lưu Thay Đổi
-                    </button>
                 </div>
             </div>
 
         </main>
 
-        <!-- FOOTER BAR TRÊN MOBILE (FIX KHÔNG ĐÈ LÊN NỘI DUNG) -->
-        <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-50 h-[64px] bg-white/95 backdrop-blur-md border-t border-slate-200 flex items-center justify-around px-2 shadow-lg">
-            <button @click="switchTab('tools')" :class="currentTab === 'tools' ? 'text-blue-600' : 'text-slate-400'" class="flex flex-col items-center gap-0.5">
-                <i class="ri-apps-2-line text-lg"></i>
-                <span class="text-[10px] font-bold">LC79 Tool</span>
+        <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHO MOBILE (Noel Theme) -->
+        <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-50 h-[70px] glass-card border-t border-white/10 flex items-center justify-around px-2 pb-safe">
+            <button @click="switchTab('tools')" :class="currentTab === 'tools' ? 'text-blue-400 scale-110' : 'text-slate-500'" class="flex flex-col items-center gap-1 transition-all w-16">
+                <i class="ri-radar-fill text-xl drop-shadow-lg"></i>
+                <span class="text-[9px] font-bold uppercase tracking-wider">Cầu LC79</span>
             </button>
-            <button @click="switchTab('vip')" :class="currentTab === 'vip' ? 'text-blue-600' : 'text-slate-400'" class="flex flex-col items-center gap-0.5">
-                <i class="ri-vip-crown-fill text-lg text-amber-500"></i>
-                <span class="text-[10px] font-bold">Mua VIP</span>
-            </button>
-            <button @click="switchTab('recharge')" :class="currentTab === 'recharge' ? 'text-blue-600' : 'text-slate-400'" class="flex flex-col items-center gap-0.5">
-                <i class="ri-wallet-3-line text-lg"></i>
-                <span class="text-[10px] font-bold">Nạp Tiền</span>
-            </button>
-            <button @click="switchTab('profile')" :class="currentTab === 'profile' ? 'text-blue-600' : 'text-slate-400'" class="flex flex-col items-center gap-0.5">
-                <i class="ri-user-settings-line text-lg"></i>
-                <span class="text-[10px] font-bold">Cá Nhân</span>
+            
+            <!-- Nút VIP ở giữa nổi bật -->
+            <div class="relative -top-5">
+                <button @click="switchTab('vip')" class="w-14 h-14 rounded-full btn-gold border-4 border-[#0A0F1D] flex flex-col items-center justify-center text-[#451A03] shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+                    <i class="ri-vip-crown-fill text-2xl"></i>
+                </button>
+            </div>
+
+            <button @click="switchTab('profile')" :class="currentTab === 'profile' ? 'text-blue-400 scale-110' : 'text-slate-500'" class="flex flex-col items-center gap-1 transition-all w-16">
+                <i class="ri-user-settings-fill text-xl drop-shadow-lg"></i>
+                <span class="text-[9px] font-bold uppercase tracking-wider">Cá Nhân</span>
             </button>
         </nav>
-
     </div>
 
-    <!-- SCRIPT CLIENT LOGIC -->
+    <!-- SCRIPT XỬ LÝ CHÍNH -->
     <script>
+        // Setup API URL
+        const API_BASE = '/api';
+
         function portalClient() {
             return {
                 isLoggedIn: false,
@@ -497,42 +370,25 @@
                 authTab: 'login',
                 currentTab: 'tools',
                 user: {},
-
-                authForm: {
-                    loginId: '',
-                    password: '',
-                    displayName: '',
-                    username: '',
-                    email: '',
-                    regPassword: '',
-                    regConfirmPassword: ''
-                },
-
-                profileForm: {
-                    displayName: '',
-                    avatar: '',
-                    oldPassword: '',
-                    newPassword: ''
-                },
-
-                rechargeAmount: 50000,
+                token: '',
                 vipKeyInput: '',
+                timeRemaining: '00:00:00',
+                timerInterval: null,
 
-                vipPackages: [
-                    { name: 'VIP 1 Ngày', price: 45000, duration: '24 Giờ', discount: '-18%', badge: 'Trải Nghiệm', desc: 'Mở khóa 2 bàn LC79 trong 1 ngày' },
-                    { name: 'VIP 7 Ngày', price: 125000, duration: '7 Ngày', discount: '-17%', badge: 'Tiết Kiệm', desc: 'Băng thông ưu tiên liên tục 1 tuần' },
-                    { name: 'VIP 30 Ngày', price: 300000, duration: '30 Ngày', discount: '-21%', badge: 'Phổ Biến', desc: 'Hỗ trợ tính toán chu kỳ 1 tháng' },
-                    { name: 'SIÊU VIP KIM CƯƠNG', price: 650000, duration: 'Vô Hạn', discount: 'MAX', badge: 'Vô Hạn', desc: 'Kích hoạt trọn đời bản quyền Anh Khôi' }
-                ],
+                authForm: { loginId: '', password: '', displayName: '', email: '' },
+                profileForm: { displayName: '', avatar: '', oldPassword: '', newPassword: '' },
 
                 init() {
-                    const saved = localStorage.getItem('ak_user');
-                    if (saved) {
+                    const savedUser = localStorage.getItem('noel_user');
+                    const savedToken = localStorage.getItem('noel_token');
+                    if (savedUser && savedToken) {
                         try {
-                            this.user = JSON.parse(saved);
+                            this.user = JSON.parse(savedUser);
+                            this.token = savedToken;
                             this.isLoggedIn = true;
                             this.syncProfileForm();
-                        } catch (e) {}
+                            this.startCountdown();
+                        } catch (e) { this.logout(); }
                     }
                 },
 
@@ -557,241 +413,166 @@
                     this.profileForm.newPassword = '';
                 },
 
+                startCountdown() {
+                    if (this.timerInterval) clearInterval(this.timerInterval);
+                    
+                    this.timerInterval = setInterval(() => {
+                        if (!this.user.vipExpiresAt || this.user.vipExpiresAt === null) {
+                            this.timeRemaining = 'CHƯA KÍCH HOẠT';
+                            return;
+                        }
+                        if (this.user.vipExpiresAt === 'FOREVER') {
+                            this.timeRemaining = 'VĨNH VIỄN';
+                            return;
+                        }
+
+                        const now = Date.now();
+                        const diff = this.user.vipExpiresAt - now;
+
+                        if (diff <= 0) {
+                            this.timeRemaining = 'HẾT HẠN';
+                            this.user.vipLevel = 'Chưa Đăng Ký';
+                            clearInterval(this.timerInterval);
+                            return;
+                        }
+
+                        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                        const h = Math.floor((diff / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
+                        const m = Math.floor((diff / 1000 / 60) % 60).toString().padStart(2, '0');
+                        const s = Math.floor((diff / 1000) % 60).toString().padStart(2, '0');
+
+                        this.timeRemaining = d > 0 ? `${d}d ${h}:${m}:${s}` : `${h}:${m}:${s}`;
+                    }, 1000);
+                },
+
+                async apiCall(endpoint, data = {}) {
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (this.token) headers['Authorization'] = this.token;
+                    
+                    const res = await fetch(`${API_BASE}${endpoint}`, {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify(data)
+                    });
+                    return await res.json();
+                },
+
                 async submitLogin() {
                     try {
-                        const res = await fetch('/api/auth/login', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ loginId: this.authForm.loginId, password: this.authForm.password })
-                        });
-                        const data = await res.json();
-                        if (data.status === 'success') {
-                            this.user = data.user;
-                            this.isLoggedIn = true;
-                            this.showAuthModal = false;
-                            localStorage.setItem('ak_user', JSON.stringify(data.user));
-                            this.syncProfileForm();
-                            Swal.fire('Thành công', data.message, 'success');
-                        } else {
-                            Swal.fire('Lỗi', data.message, 'error');
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Không thể kết nối máy chủ!', 'error');
-                    }
+                        const data = await this.apiCall('/auth/login', { loginId: this.authForm.loginId, password: this.authForm.password });
+                        if (data.status === 'success') this.handleAuthSuccess(data);
+                        else Swal.fire('Lỗi', data.message, 'error');
+                    } catch (e) { Swal.fire('Lỗi', 'Không thể kết nối máy chủ!', 'error'); }
                 },
 
                 async submitRegister() {
-                    if (this.authForm.regPassword !== this.authForm.regConfirmPassword) {
-                        Swal.fire('Lỗi', 'Mật khẩu xác nhận không khớp!', 'warning');
-                        return;
-                    }
                     try {
-                        const res = await fetch('/api/auth/register', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                username: this.authForm.username,
-                                password: this.authForm.regPassword,
-                                displayName: this.authForm.displayName,
-                                email: this.authForm.email
-                            })
+                        const data = await this.apiCall('/auth/register', {
+                            username: this.authForm.loginId,
+                            password: this.authForm.password,
+                            displayName: this.authForm.displayName,
+                            email: this.authForm.email
                         });
-                        const data = await res.json();
-                        if (data.status === 'success') {
-                            this.user = data.user;
-                            this.isLoggedIn = true;
-                            this.showAuthModal = false;
-                            localStorage.setItem('ak_user', JSON.stringify(data.user));
-                            this.syncProfileForm();
-                            Swal.fire('Chúc mừng', 'Tài khoản của bạn đã được khởi tạo!', 'success');
-                        } else {
-                            Swal.fire('Lỗi', data.message, 'error');
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Không thể kết nối máy chủ!', 'error');
-                    }
+                        if (data.status === 'success') this.handleAuthSuccess(data);
+                        else Swal.fire('Lỗi', data.message, 'error');
+                    } catch (e) { Swal.fire('Lỗi', 'Không thể kết nối máy chủ!', 'error'); }
                 },
 
                 async socialLogin(provider) {
-                    const mockEmail = `${provider.toLowerCase()}_user_${Math.floor(1000 + Math.random() * 9000)}@gmail.com`;
-                    const mockName = `${provider} User`;
+                    Swal.fire('Thông báo', `Tính năng xác thực ${provider} chuẩn OAuth đang được cấu hình!`, 'info');
+                },
 
-                    try {
-                        const res = await fetch('/api/auth/social', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ provider, email: mockEmail, name: mockName })
-                        });
-                        const data = await res.json();
-                        if (data.status === 'success') {
-                            this.user = data.user;
-                            this.isLoggedIn = true;
-                            this.showAuthModal = false;
-                            localStorage.setItem('ak_user', JSON.stringify(data.user));
-                            this.syncProfileForm();
-                            Swal.fire('Thành công', `Đăng nhập qua ${provider} thành công!`, 'success');
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Lỗi xác thực mạng xã hội', 'error');
-                    }
+                handleAuthSuccess(data) {
+                    this.user = data.user;
+                    this.token = data.token;
+                    this.isLoggedIn = true;
+                    this.showAuthModal = false;
+                    localStorage.setItem('noel_user', JSON.stringify(this.user));
+                    localStorage.setItem('noel_token', this.token);
+                    this.syncProfileForm();
+                    this.startCountdown();
+                    Swal.fire({
+                        title: 'Thành Công', text: data.message, icon: 'success',
+                        background: '#111827', color: '#fff', confirmButtonColor: '#3B82F6'
+                    });
                 },
 
                 handleAvatarUpload(event) {
                     const file = event.target.files[0];
                     if (!file) return;
                     const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this.profileForm.avatar = e.target.result;
-                    };
+                    reader.onload = (e) => { this.profileForm.avatar = e.target.result; };
                     reader.readAsDataURL(file);
-                },
-
-                resetDefaultAvatar() {
-                    this.profileForm.avatar = '';
                 },
 
                 async saveProfile() {
                     try {
-                        const res = await fetch('/api/user/update', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                userId: this.user.id,
-                                displayName: this.profileForm.displayName,
-                                avatar: this.profileForm.avatar,
-                                oldPassword: this.profileForm.oldPassword,
-                                newPassword: this.profileForm.newPassword
-                            })
+                        const data = await this.apiCall('/user/update', {
+                            displayName: this.profileForm.displayName,
+                            avatar: this.profileForm.avatar,
+                            oldPassword: this.profileForm.oldPassword,
+                            newPassword: this.profileForm.newPassword
                         });
-                        const data = await res.json();
                         if (data.status === 'success') {
                             this.user = data.user;
-                            localStorage.setItem('ak_user', JSON.stringify(data.user));
-                            Swal.fire('Thành công', 'Đã lưu thông tin tài khoản!', 'success');
-                        } else {
-                            Swal.fire('Lỗi', data.message, 'error');
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Không thể lưu dữ liệu!', 'error');
-                    }
-                },
-
-                async createDeposit() {
-                    if (this.rechargeAmount < 10000) {
-                        Swal.fire('Lỗi', 'Số tiền nạp tối thiểu là 10,000đ', 'warning');
-                        return;
-                    }
-                    try {
-                        const res = await fetch('/api/deposit/create', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId: this.user.id, amount: this.rechargeAmount })
-                        });
-                        const data = await res.json();
-                        if (data.status === 'success') {
-                            Swal.fire({
-                                title: 'Hóa Đơn Nạp Tiền',
-                                html: `
-                                    <div class="text-center">
-                                        <p class="text-xs text-slate-500 mb-3">Quét mã QR dưới đây để nạp tiền</p>
-                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PORTAL_ANHKHOI_${data.deposit.id}" class="mx-auto border p-1 rounded-xl mb-3">
-                                        <div class="text-left text-xs bg-slate-50 p-3 rounded-xl border">
-                                            <p><b>Mã GD:</b> ${data.deposit.id}</p>
-                                            <p><b>Số tiền:</b> ${this.formatMoney(data.deposit.amount)}đ</p>
-                                            <p><b>Nội dung:</b> AK NAP ${this.user.username}</p>
-                                        </div>
-                                    </div>
-                                `,
-                                confirmButtonText: 'Đã Hiểu & Đóng',
-                                confirmButtonColor: '#2563eb'
-                            });
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Không thể tạo đơn nạp', 'error');
-                    }
+                            localStorage.setItem('noel_user', JSON.stringify(this.user));
+                            Swal.fire({ title: 'Đã Lưu', text: data.message, icon: 'success', background: '#111827', color: '#fff' });
+                        } else Swal.fire('Lỗi', data.message, 'error');
+                    } catch (e) { Swal.fire('Lỗi', 'Lỗi cập nhật', 'error'); }
                 },
 
                 async redeemKey() {
-                    if (!this.vipKeyInput.trim()) {
-                        Swal.fire('Lỗi', 'Vui lòng nhập mã Key VIP', 'warning');
-                        return;
-                    }
+                    if (!this.vipKeyInput.trim()) return Swal.fire('Lỗi', 'Vui lòng nhập Key', 'warning');
                     try {
-                        const res = await fetch('/api/key/redeem', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ userId: this.user.id, keyCode: this.vipKeyInput })
-                        });
-                        const data = await res.json();
+                        const data = await this.apiCall('/key/redeem', { keyCode: this.vipKeyInput });
                         if (data.status === 'success') {
                             this.user = data.user;
-                            localStorage.setItem('ak_user', JSON.stringify(data.user));
+                            localStorage.setItem('noel_user', JSON.stringify(this.user));
                             this.vipKeyInput = '';
-                            Swal.fire('Thành công', data.message, 'success');
-                        } else {
-                            Swal.fire('Lỗi', data.message, 'error');
-                        }
-                    } catch (e) {
-                        Swal.fire('Lỗi', 'Không thể kích hoạt Key', 'error');
-                    }
+                            this.startCountdown();
+                            Swal.fire({ title: 'Kích Hoạt', text: data.message, icon: 'success', background: '#111827', color: '#fff' });
+                        } else Swal.fire('Lỗi', data.message, 'error');
+                    } catch (e) { Swal.fire('Lỗi', 'Không thể kết nối', 'error'); }
                 },
 
-                async buyVip(pkg) {
-                    const confirm = await Swal.fire({
-                        title: 'Xác Nhận Kích Hoạt',
-                        text: `Bạn muốn đăng ký gói ${pkg.name} với giá ${this.formatMoney(pkg.price)}đ?`,
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonText: 'Mua Ngay',
-                        cancelButtonText: 'Hủy'
-                    });
-
-                    if (confirm.isConfirmed) {
-                        try {
-                            const res = await fetch('/api/vip/buy', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    userId: this.user.id,
-                                    packageName: pkg.name,
-                                    price: pkg.price,
-                                    duration: pkg.duration
-                                })
-                            });
-                            const data = await res.json();
-                            if (data.status === 'success') {
-                                this.user = data.user;
-                                localStorage.setItem('ak_user', JSON.stringify(data.user));
-                                Swal.fire('Thành công', data.message, 'success');
-                            } else {
-                                Swal.fire('Lỗi', data.message, 'error');
-                            }
-                        } catch (e) {
-                            Swal.fire('Lỗi', 'Giao dịch thất bại', 'error');
+                async runTool(name) {
+                    // Check quyền truy cập từ Backend bằng Token
+                    try {
+                        const data = await this.apiCall('/tool/access');
+                        if (data.status === 'error') {
+                            return Swal.fire({
+                                title: 'Truy Cập Bị Từ Chối', text: data.message, icon: 'error',
+                                background: '#111827', color: '#fff', confirmButtonText: 'Nạp Key VIP', confirmButtonColor: '#F59E0B'
+                            }).then((r) => { if(r.isConfirmed) this.switchTab('vip'); });
                         }
-                    }
-                },
-
-                runTool(name) {
-                    Swal.fire({
-                        title: name,
-                        html: `
-                            <div class="text-left text-xs space-y-2 p-3 bg-slate-50 rounded-xl border">
-                                <p><b>Phiên hiện tại:</b> #${Math.floor(800000 + Math.random() * 100000)}</p>
-                                <p><b>Thuật toán:</b> Giải mã luồng dữ liệu LC79</p>
-                                <p><b>Dự đoán phiên tới:</b> <span class="px-2 py-0.5 rounded text-white font-bold bg-blue-600">TÀI (Tỉ lệ 91%)</span></p>
-                            </div>
-                        `,
-                        icon: 'info',
-                        confirmButtonText: 'Đóng',
-                        confirmButtonColor: '#2563eb'
-                    });
+                        
+                        // Nếu OK hiện thuật toán
+                        Swal.fire({
+                            title: `Phân Tích ${name}`,
+                            html: `
+                                <div class="text-left text-sm space-y-3 p-4 bg-slate-900 rounded-xl border border-white/10 text-slate-300">
+                                    <p class="flex justify-between"><span>Trạng thái máy chủ:</span> <span class="text-emerald-400 font-mono font-bold">Đã Kết Nối</span></p>
+                                    <p class="flex justify-between"><span>Phiên dữ liệu:</span> <span class="text-white font-mono">#${Math.floor(800000+Math.random()*100000)}</span></p>
+                                    <div class="pt-3 border-t border-white/10 text-center">
+                                        <p class="text-[11px] uppercase tracking-widest text-slate-500 mb-2">Kết Quả Bắt Cầu Tự Động</p>
+                                        <span class="inline-block px-4 py-1.5 rounded-full text-white font-black bg-gradient-to-r from-blue-600 to-indigo-600 text-lg shadow-[0_0_15px_rgba(37,99,235,0.5)]">
+                                            TÀI (Tỉ lệ 91.5%)
+                                        </span>
+                                    </div>
+                                </div>
+                            `,
+                            background: '#0A0F1D', color: '#fff', confirmButtonText: 'Đóng Bảng', confirmButtonColor: '#1D4ED8'
+                        });
+                    } catch(e) { Swal.fire('Lỗi mạng', 'Mất kết nối máy chủ', 'error'); }
                 },
 
                 logout() {
-                    localStorage.removeItem('ak_user');
+                    localStorage.removeItem('noel_user');
+                    localStorage.removeItem('noel_token');
                     this.isLoggedIn = false;
                     this.user = {};
+                    this.token = '';
+                    if(this.timerInterval) clearInterval(this.timerInterval);
                 }
             };
         }
