@@ -1,7 +1,7 @@
 {
-  "name": "web-portal-anhkhoi",
+  "name": "portal-anhkhoi",
   "version": "1.0.0",
-  "description": "Portal Anh Khoi",
+  "description": "Portal LC79 Ban Quyen Anh Khoi",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
