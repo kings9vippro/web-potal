@@ -11,7 +11,10 @@ const ADMIN_SECRET = process.env.ADMIN_SECRET || 'AnhKhoi2026';
 app.use(cors());
 app.use(express.json({ limit: '15mb' }));
 
-// Phục vụ file tĩnh ngay thư mục gốc (không lo bị lỗi đường dẫn folder)
+// Phục vụ thư mục tĩnh (chứa file web)
+if (fs.existsSync(path.join(__dirname, 'public'))) {
+    app.use(express.static(path.join(__dirname, 'public')));
+}
 app.use(express.static(__dirname));
 
 function loadDB() {
@@ -117,7 +120,7 @@ app.post('/api/auth/social', (req, res) => {
     return res.json({ status: 'success', message: `Đăng nhập qua ${provider} thành công!`, user });
 });
 
-// 4. Cập nhật thông tin & Đổi Avatar
+// 4. Đổi Avatar & Thông tin
 app.post('/api/user/update', (req, res) => {
     const { userId, displayName, avatar, oldPassword, newPassword } = req.body;
     const db = loadDB();
@@ -169,7 +172,7 @@ app.post('/api/key/redeem', (req, res) => {
 
     const key = db.keys.find(k => k.code === keyCode.trim().toUpperCase() && !k.isUsed);
     if (!key) {
-        return res.status(400).json({ status: 'error', message: 'Mã Key không tồn tại hoặc đã được sử dụng!' });
+        return res.status(400).json({ status: 'error', message: 'Mã Key không tồn tại hoặc đã qua sử dụng!' });
     }
 
     key.isUsed = true;
@@ -181,7 +184,7 @@ app.post('/api/key/redeem', (req, res) => {
     return res.json({ status: 'success', message: `Kích hoạt thành công gói ${key.vipName}!`, user });
 });
 
-// 7. Mua VIP bằng số dư ví
+// 7. Mua VIP bằng số dư
 app.post('/api/vip/buy', (req, res) => {
     const { userId, packageName, price, duration } = req.body;
     const db = loadDB();
@@ -200,7 +203,7 @@ app.post('/api/vip/buy', (req, res) => {
     return res.json({ status: 'success', message: `Nâng cấp thành công gói ${packageName}!`, user });
 });
 
-// ==================== CỔNG ADMIN MÁY CHỦ BẢO MẬT ====================
+// ==================== CỔNG ADMIN MÁY CHỦ ====================
 function authAdmin(req, res, next) {
     const key = req.headers['x-admin-key'] || req.query.admin_key;
     if (key !== ADMIN_SECRET) {
@@ -256,12 +259,20 @@ app.post('/api/admin/keys/create', authAdmin, (req, res) => {
 
 // Cổng trang Admin
 app.get('/admin', (req, res) => {
-    res.sendFile(path.join(__dirname, 'admin.html'));
+    const adminPath = fs.existsSync(path.join(__dirname, 'public', 'admin.html'))
+        ? path.join(__dirname, 'public', 'admin.html')
+        : path.join(__dirname, 'admin.html');
+    res.sendFile(adminPath);
 });
 
-// Cổng trang Web Client chính
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
+// Cổng trang Web Client (Đã sửa tương thích Express 5 và Node 24)
+app.use((req, res) => {
+    const indexPath = fs.existsSync(path.join(__dirname, 'public', 'index.html'))
+        ? path.join(__dirname, 'public', 'index.html')
+        : path.join(__dirname, 'index.html');
+    res.sendFile(indexPath);
 });
 
-app.listen(PORT, () => console.log(`Máy chủ PORTAL ANH KHOI đang chạy tại cổng: ${PORT}`));
+app.listen(PORT, () => {
+    console.log(`[PORTAL ANH KHOI] May chu dang chay tai cong: ${PORT}`);
+});
