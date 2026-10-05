@@ -1,38 +1,16 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <title>PORTAL ANH KHÔI — Hệ Sinh Thái Thuật Toán LC79 Bản Quyền</title>
-    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PORTAL ANH KHÔI — Thuật Toán LC79 Bản Quyền</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet" />
-    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800;900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.2.0/fonts/remixicon.css" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            500: '#2563eb',
-                            600: '#1d4ed8',
-                            700: '#1e40af'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Plus Jakarta Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
-                    }
-                }
-            }
-        };
-    </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
@@ -45,14 +23,14 @@
         }
         .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
         
-        /* Hiệu ứng Kính Mờ Trắng Siêu Đẹp */
+        /* Hiệu ứng Trắng Kính Mờ */
         .glass-white {
             background: rgba(255, 255, 255, 0.88);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(226, 232, 240, 0.9);
         }
-
+        
         .btn-pill {
             border-radius: 9999px;
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -65,177 +43,173 @@
 <body x-data="portalClient()" x-cloak class="min-h-screen flex flex-col bg-[#F8FAFC]">
 
     <!-- ============================================================== -->
-    <!-- MÀN HÌNH 1: LANDING PAGE (FILE 11 NÂNG CẤP BẢN QUYỀN TRẮNG SÁNG) -->
+    <!-- MÀN HÌNH 1: LANDING PAGE ĐẦU VÀO (FILE 11 NÂNG CẤP TRẮNG SÁNG) -->
     <!-- ============================================================== -->
     <div x-show="!isLoggedIn && !showAuthModal" class="flex-1 flex flex-col">
-        <!-- Landing Header -->
         <header class="sticky top-0 z-50 glass-white border-b border-slate-200/80">
-            <div class="max-w-[1200px] mx-auto px-4 sm:px-6 h-[68px] flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
-                        <i class="ri-shield-flash-fill text-2xl"></i>
+            <div class="max-w-[1200px] mx-auto px-4 h-16 flex items-center justify-between">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                        <i class="ri-shield-flash-fill text-xl"></i>
                     </div>
                     <div>
-                        <span class="font-display font-black text-lg text-slate-900 tracking-tight">PORTAL ANH KHÔI</span>
-                        <span class="text-[10px] font-bold text-blue-600 block uppercase tracking-widest leading-none">Bản Quyền Chính Hãng</span>
+                        <span class="font-display font-black text-base text-slate-900 tracking-tight">PORTAL ANH KHÔI</span>
+                        <span class="text-[9px] font-bold text-blue-600 block uppercase tracking-widest">Bản Quyền Chính Hãng</span>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <button @click="openAuth('login')" class="px-5 py-2 text-xs font-bold font-display text-slate-700 hover:text-blue-600 rounded-full hover:bg-slate-100 transition-all">
+                <div class="flex items-center gap-2">
+                    <button @click="openAuth('login')" class="px-4 py-2 text-xs font-bold font-display text-slate-700 hover:text-blue-600 rounded-full">
                         Đăng Nhập
                     </button>
                     <button @click="openAuth('register')" class="px-5 py-2 text-xs font-bold font-display text-white bg-blue-600 hover:bg-blue-700 rounded-full shadow-md shadow-blue-500/20 btn-pill">
-                        Đăng Ký Ngay
+                        Đăng Ký
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Landing Hero -->
-        <section class="py-16 sm:py-24 px-4 text-center max-w-[900px] mx-auto flex-1 flex flex-col justify-center">
-            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-6 border border-blue-100 mx-auto shadow-sm">
-                <i class="ri-radar-line"></i> Nền Tảng Giải Mã Thuật Toán LC79 Độc Quyền
+        <section class="py-14 sm:py-20 px-4 text-center max-w-[850px] mx-auto flex-1 flex flex-col justify-center">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold mb-6 border border-blue-100 mx-auto">
+                <i class="ri-radar-line"></i> Giải Mã Thuật Toán LC79 Độc Quyền
             </div>
 
-            <h1 class="text-3xl sm:text-6xl font-black font-display text-slate-900 tracking-tight leading-tight mb-6">
-                Kiểm Soát Nhịp Cầu Cùng <br>
+            <h1 class="text-3xl sm:text-5xl font-black font-display text-slate-900 tracking-tight leading-tight mb-5">
+                Kiểm Soát Từng Phiên Cùng <br>
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Thuật Toán LC79 Chuẩn Xác</span>
             </h1>
 
-            <p class="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl mx-auto mb-10">
-                Hệ thống chuyên sâu phân tích chuỗi phiên Tài Xỉu MD5 và bàn Hũ LC79 thời gian thực. Giao diện trực quan, tốc độ tính toán mili-giây, bảo mật dữ liệu tuyệt đối.
+            <p class="text-slate-600 text-xs sm:text-sm leading-relaxed max-w-xl mx-auto mb-8">
+                Hệ thống chuyên sâu phân tích chuỗi phiên Tài Xỉu MD5 và bàn Hũ LC79 thời gian thực. Tốc độ mili-giây, máy chủ bảo mật an toàn 100%.
             </p>
 
-            <div class="flex flex-wrap items-center justify-center gap-4">
-                <button @click="openAuth('register')" class="px-8 py-3.5 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-sm rounded-full shadow-lg shadow-blue-500/25 btn-pill flex items-center gap-2">
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <button @click="openAuth('register')" class="px-7 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-lg shadow-blue-500/25 btn-pill flex items-center gap-2">
                     <i class="ri-rocket-fill"></i> Bắt Đầu Sử Dụng
                 </button>
-                <button @click="openAuth('login')" class="px-8 py-3.5 bg-white hover:bg-slate-50 text-slate-800 font-bold font-display text-sm rounded-full border border-slate-300 shadow-sm btn-pill">
-                    Đăng Nhập Tài Khoản
+                <button @click="openAuth('login')" class="px-7 py-3 bg-white hover:bg-slate-50 text-slate-800 font-bold font-display text-xs uppercase tracking-wider rounded-full border border-slate-300 shadow-sm btn-pill">
+                    Đăng Nhập Ngay
                 </button>
             </div>
 
-            <!-- Thống kê -->
-            <div class="grid grid-cols-3 gap-4 max-w-lg mx-auto mt-16 pt-10 border-t border-slate-200">
+            <div class="grid grid-cols-3 gap-3 max-w-md mx-auto mt-14 pt-8 border-t border-slate-200">
                 <div>
-                    <p class="text-2xl sm:text-3xl font-black font-mono text-slate-900">0.18ms</p>
-                    <span class="text-xs font-medium text-slate-500">Độ trễ cổng API</span>
+                    <p class="text-xl sm:text-2xl font-black font-mono text-slate-900">0.18ms</p>
+                    <span class="text-[11px] font-medium text-slate-500">Độ trễ API</span>
                 </div>
                 <div>
-                    <p class="text-2xl sm:text-3xl font-black font-mono text-blue-600">100%</p>
-                    <span class="text-xs font-medium text-slate-500">Bản Quyền Anh Khôi</span>
+                    <p class="text-xl sm:text-2xl font-black font-mono text-blue-600">100%</p>
+                    <span class="text-[11px] font-medium text-slate-500">Bản Quyền</span>
                 </div>
                 <div>
-                    <p class="text-2xl sm:text-3xl font-black font-mono text-slate-900">24/7</p>
-                    <span class="text-xs font-medium text-slate-500">Duyệt nạp tự động</span>
+                    <p class="text-xl sm:text-2xl font-black font-mono text-slate-900">24/7</p>
+                    <span class="text-[11px] font-medium text-slate-500">Tự động duyệt</span>
                 </div>
             </div>
         </section>
 
-        <footer class="py-6 border-t border-slate-200 text-center text-xs text-slate-500">
-            &copy; 2026 PORTAL ANH KHÔI. Bản Quyền Phát Triển Bởi Dev Phạm Anh Khôi.
+        <footer class="py-5 border-t border-slate-200 text-center text-[11px] text-slate-500">
+            &copy; 2026 PORTAL ANH KHÔI. Bản Quyền Thuộc Về Dev Phạm Anh Khôi.
         </footer>
     </div>
 
     <!-- ============================================================== -->
-    <!-- MÀN HÌNH 2: CỔNG ĐĂNG NHẬP / ĐĂNG KÝ (FILE 1 NÂNG CẤP)        -->
+    <!-- MÀN HÌNH 2: CỔNG ĐĂNG NHẬP & ĐĂNG KÝ (FILE 1 NÂNG CẤP)        -->
     <!-- ============================================================== -->
     <div x-show="showAuthModal && !isLoggedIn" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
-        <div class="bg-white rounded-[28px] max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-200 relative overflow-hidden">
+        <div class="bg-white rounded-[28px] max-w-sm w-full p-6 shadow-2xl border border-slate-200 relative">
             
-            <button @click="showAuthModal = false" class="absolute top-5 right-5 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition-colors">
-                <i class="ri-close-line text-lg"></i>
+            <button @click="showAuthModal = false" class="absolute top-4 right-4 w-7 h-7 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center">
+                <i class="ri-close-line"></i>
             </button>
 
-            <!-- Tiêu đề -->
-            <div class="text-center mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-3 shadow-md shadow-blue-500/20">
-                    <i class="ri-shield-keyhole-fill text-2xl"></i>
+            <div class="text-center mb-5">
+                <div class="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center mx-auto mb-2.5 shadow-md shadow-blue-500/20">
+                    <i class="ri-shield-keyhole-fill text-xl"></i>
                 </div>
-                <h3 class="text-xl font-bold font-display text-slate-900" x-text="authTab === 'login' ? 'Đăng Nhập Tài Khoản' : 'Tạo Tài Khoản Mới'"></h3>
-                <p class="text-xs text-slate-500 mt-1">Hệ Thống Tiện Ích PORTAL ANH KHÔI</p>
+                <h3 class="text-lg font-bold font-display text-slate-900" x-text="authTab === 'login' ? 'Đăng Nhập Tài Khoản' : 'Đăng Ký Tài Khoản'"></h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">Hệ Thống Tiện Ích PORTAL ANH KHÔI</p>
             </div>
 
-            <!-- Nút Đăng nhập Nhanh Google / GitHub -->
-            <div class="grid grid-cols-2 gap-3 mb-5">
-                <button type="button" @click="socialLogin('Google')" class="flex items-center justify-center gap-2 py-2.5 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all btn-pill">
-                    <i class="ri-google-fill text-red-500 text-base"></i> Google
+            <!-- Nút Google / GitHub -->
+            <div class="grid grid-cols-2 gap-2.5 mb-4">
+                <button type="button" @click="socialLogin('Google')" class="flex items-center justify-center gap-1.5 py-2 border border-slate-200 rounded-xl hover:bg-slate-50 text-xs font-bold text-slate-700 btn-pill">
+                    <i class="ri-google-fill text-red-500"></i> Google
                 </button>
-                <button type="button" @click="socialLogin('GitHub')" class="flex items-center justify-center gap-2 py-2.5 px-3 border border-slate-200 rounded-xl hover:bg-slate-50 text-xs font-bold text-slate-700 transition-all btn-pill">
-                    <i class="ri-github-fill text-slate-900 text-base"></i> GitHub
+                <button type="button" @click="socialLogin('GitHub')" class="flex items-center justify-center gap-1.5 py-2 border border-slate-200 rounded-xl hover:bg-slate-50 text-xs font-bold text-slate-700 btn-pill">
+                    <i class="ri-github-fill text-slate-900"></i> GitHub
                 </button>
             </div>
 
-            <div class="flex items-center gap-2 my-4 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+            <div class="flex items-center gap-2 my-3 text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 <div class="h-px bg-slate-200 flex-1"></div>
-                <span>Hoặc Sử Dụng Mật Khẩu</span>
+                <span>Hoặc Nhập Mật Khẩu</span>
                 <div class="h-px bg-slate-200 flex-1"></div>
             </div>
 
             <!-- Form Đăng Nhập -->
-            <form x-show="authTab === 'login'" @submit.prevent="submitLogin()" class="space-y-3.5">
+            <form x-show="authTab === 'login'" @submit.prevent="submitLogin()" class="space-y-3">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Tài Khoản hoặc Email</label>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Tài Khoản hoặc Email</label>
                     <input type="text" x-model="authForm.loginId" required placeholder="Nhập username hoặc email" 
-                           class="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500 transition-all">
+                           class="w-full h-10 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Mật Khẩu</label>
-                    <input type="password" x-model="authForm.password" required placeholder="Nhập mật khẩu của bạn" 
-                           class="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500 transition-all">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Mật Khẩu</label>
+                    <input type="password" x-model="authForm.password" required placeholder="••••••••" 
+                           class="w-full h-10 px-3.5 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
                 </div>
 
-                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-sm rounded-full shadow-md shadow-blue-500/20 btn-pill mt-2">
+                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs rounded-full shadow-md btn-pill mt-2">
                     Đăng Nhập Ngay
                 </button>
 
                 <div class="text-center pt-2">
-                    <span class="text-xs text-slate-500">Chưa có tài khoản?</span>
+                    <span class="text-xs text-slate-500">Chưa có nick?</span>
                     <button type="button" @click="authTab = 'register'" class="text-xs font-bold text-blue-600 hover:underline ml-1">Đăng ký mới</button>
                 </div>
             </form>
 
             <!-- Form Đăng Ký -->
-            <form x-show="authTab === 'register'" @submit.prevent="submitRegister()" class="space-y-3">
+            <form x-show="authTab === 'register'" @submit.prevent="submitRegister()" class="space-y-2.5">
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Họ và Tên</label>
-                    <input type="text" x-model="authForm.displayName" required placeholder="Nhập họ và tên hiển thị" 
-                           class="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500 transition-all">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Họ Và Tên</label>
+                    <input type="text" x-model="authForm.displayName" required placeholder="Ví dụ: Phạm Anh Khôi" 
+                           class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Tên Đăng Nhập</label>
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Tên Đăng Nhập</label>
                     <input type="text" x-model="authForm.username" required placeholder="Viết liền không dấu" 
-                           class="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500 transition-all">
+                           class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div>
-                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Địa Chỉ Email</label>
-                    <input type="email" x-model="authForm.email" required placeholder="example@gmail.com" 
-                           class="w-full h-10 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500 transition-all">
+                    <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Email</label>
+                    <input type="email" x-model="authForm.email" required placeholder="name@gmail.com" 
+                           class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
                 </div>
 
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Mật Khẩu</label>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Mật Khẩu</label>
                         <input type="password" x-model="authForm.regPassword" required placeholder="••••••••" 
-                               class="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500 transition-all">
+                               class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Nhập Lại</label>
+                        <label class="block text-[11px] font-bold text-slate-600 uppercase mb-1">Nhập Lại</label>
                         <input type="password" x-model="authForm.regConfirmPassword" required placeholder="••••••••" 
-                               class="w-full h-10 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500 transition-all">
+                               class="w-full h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:bg-white focus:outline-none focus:border-blue-500">
                     </div>
                 </div>
 
-                <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-sm rounded-full shadow-md shadow-blue-500/20 btn-pill mt-3">
+                <button type="submit" class="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs rounded-full shadow-md btn-pill mt-2">
                     Đăng Ký Tài Khoản
                 </button>
 
                 <div class="text-center pt-2">
-                    <span class="text-xs text-slate-500">Đã có tài khoản?</span>
+                    <span class="text-xs text-slate-500">Đã có nick?</span>
                     <button type="button" @click="authTab = 'login'" class="text-xs font-bold text-blue-600 hover:underline ml-1">Đăng nhập</button>
                 </div>
             </form>
@@ -244,15 +218,15 @@
     </div>
 
     <!-- ============================================================== -->
-    <!-- MÀN HÌNH 3: KHÔNG GIAN LÀM VIỆC CHÍNH KHI ĐÃ ĐĂNG NHẬP          -->
+    <!-- MÀN HÌNH 3: WEB PORTAL CLIENT (FIX LỖI ĐÈ NHAU TRÊN MOBILE)     -->
     <!-- ============================================================== -->
     <div x-show="isLoggedIn" class="flex-1 flex flex-col pb-20 sm:pb-6">
         
-        <!-- HEADER CLIENT (FIX LỖI ĐÈ NHAU TRÊN MOBILE) -->
+        <!-- HEADER CLIENT (GỌN GÀNG, KHÔNG ĐÈ LÊN NHAU) -->
         <header class="sticky top-0 z-40 glass-white border-b border-slate-200/90 shadow-sm">
             <div class="max-w-[1200px] mx-auto px-3 sm:px-6 h-[64px] flex items-center justify-between gap-2">
                 
-                <!-- Cột trái: Avatar + Tên + Cấp độ -->
+                <!-- BÊN TRÁI: AVATAR + TÊN + CẤP ĐỘ (XẾP THẲNG HÀNG, KHÔNG ĐÈ) -->
                 <div class="flex items-center gap-2.5 min-w-0">
                     <div class="relative shrink-0 cursor-pointer" @click="switchTab('profile')">
                         <img :src="user.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.username" 
@@ -267,9 +241,9 @@
                     </div>
                 </div>
 
-                <!-- Cột phải: Khối Số dư + Nạp tiền gọn gàng -->
+                <!-- BÊN PHẢI: SỐ DƯ + NÚT NẠP TIỀN + ĐĂNG XUẤT -->
                 <div class="flex items-center gap-2 shrink-0">
-                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100/90 border border-slate-200 rounded-full btn-pill">
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 border border-slate-200 rounded-full btn-pill">
                         <i class="ri-wallet-3-fill text-amber-500 text-xs"></i>
                         <span class="font-mono font-bold text-xs sm:text-sm text-slate-900" x-text="formatMoney(user.balance) + 'đ'"></span>
                     </div>
@@ -286,26 +260,25 @@
             </div>
         </header>
 
-        <!-- BANNER THÔNG BÁO CHẠY NGANG -->
+        <!-- BANNER THÔNG BÁO -->
         <div class="bg-blue-50 border-b border-blue-100 px-4 py-2 text-center text-xs font-medium text-blue-800 flex items-center justify-center gap-2">
             <span class="bg-blue-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-full">BẢN QUYỀN</span>
-            <span>Hệ thống phân tích LC79 chính thức của Dev Anh Khôi. CSKH Telegram: <b>@anhkhoi_xabc</b></span>
+            <span>Hệ thống giải mã LC79 chính thức của Dev Anh Khôi. Hỗ trợ Telegram: <b>@anhkhoi_xabc</b></span>
         </div>
 
-        <!-- VÙNG NỘI DUNG TỪNG TAB TRONG PORTAL -->
         <main class="flex-1 max-w-[1200px] w-full mx-auto p-4 sm:p-6 space-y-6">
             
-            <!-- ====== TAB 1: KHO CÔNG CỤ (CHỈ CÒN DUY NHẤT 2 BÀN LC79) ====== -->
+            <!-- ====== TAB 1: KHO CÔNG CỤ (CHỈ CÒN 2 BÀN LC79) ====== -->
             <div x-show="currentTab === 'tools'" class="space-y-6">
                 <div>
                     <h2 class="text-xl sm:text-2xl font-black font-display text-slate-900 tracking-tight">Kho Công Cụ LC79 Độc Quyền</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Thuật toán phân tích chuỗi dữ liệu băm phiên MD5 và bắt nhịp rơi Hũ Cân Bảng chuẩn xác.</p>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-0.5">Thuật toán khớp chuỗi băm MD5 và bắt nhịp rơi Hũ Cân Bảng chuẩn xác.</p>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     
-                    <!-- TOOL 1: LC79 BÀN TÀI XỈU MD5 -->
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                    <!-- BÀN 1: LC79 MD5 -->
+                    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 uppercase tracking-wider">
@@ -327,18 +300,18 @@
                             </div>
 
                             <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1 mb-5">
-                                <div class="flex justify-between"><span>Tỷ lệ chuẩn khớp:</span> <b class="text-blue-600">92.6%</b></div>
-                                <div class="flex justify-between"><span>Độ trễ cập nhật:</span> <b class="text-emerald-600">Thời gian thực</b></div>
+                                <div class="flex justify-between"><span>Độ chuẩn xác:</span> <b class="text-blue-600">92.6%</b></div>
+                                <div class="flex justify-between"><span>Tốc độ:</span> <b class="text-emerald-600">Thời gian thực</b></div>
                             </div>
                         </div>
 
-                        <button @click="runTool('LC79 Bàn MD5')" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md shadow-blue-500/20 btn-pill flex items-center justify-center gap-2">
+                        <button @click="runTool('LC79 Bàn MD5')" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md btn-pill flex items-center justify-center gap-2">
                             <i class="ri-play-fill text-base"></i> Kích Hoạt Dự Đoán MD5
                         </button>
                     </div>
 
-                    <!-- TOOL 2: LC79 BÀN TÀI XỈU HŨ (CÂN BẢNG) -->
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+                    <!-- BÀN 2: LC79 HŨ CÂN BẢNG -->
+                    <div class="bg-white rounded-3xl p-6 border border-slate-200/90 shadow-sm flex flex-col justify-between">
                         <div>
                             <div class="flex items-center justify-between mb-4">
                                 <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200 uppercase tracking-wider">
@@ -355,17 +328,17 @@
                                 </div>
                                 <div>
                                     <h3 class="text-lg font-bold font-display text-slate-900">LC79 — Bàn Tài Xỉu Hũ</h3>
-                                    <p class="text-xs text-slate-500 mt-0.5">Giải mã chu kỳ bùng nổ Hũ và tính toán dòng tiền cân cửa.</p>
+                                    <p class="text-xs text-slate-500 mt-0.5">Bắt nhịp rơi Hũ và cân bằng dòng tiền hai cửa cược.</p>
                                 </div>
                             </div>
 
                             <div class="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 text-xs text-slate-600 space-y-1 mb-5">
-                                <div class="flex justify-between"><span>Tính năng phụ trợ:</span> <b class="text-amber-600">Báo chạm nhịp Hũ</b></div>
-                                <div class="flex justify-between"><span>Độ ổn định:</span> <b class="text-emerald-600">Ưu tiên băng thông VIP</b></div>
+                                <div class="flex justify-between"><span>Tính năng:</span> <b class="text-amber-600">Báo chạm nhịp Hũ</b></div>
+                                <div class="flex justify-between"><span>Đường truyền:</span> <b class="text-emerald-600">Ưu tiên VIP</b></div>
                             </div>
                         </div>
 
-                        <button @click="runTool('LC79 Bàn Hũ')" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md shadow-amber-500/20 btn-pill flex items-center justify-center gap-2">
+                        <button @click="runTool('LC79 Bàn Hũ')" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md btn-pill flex items-center justify-center gap-2">
                             <i class="ri-play-fill text-base"></i> Kích Hoạt Soi Nhịp Hũ
                         </button>
                     </div>
@@ -373,17 +346,17 @@
                 </div>
             </div>
 
-            <!-- ====== TAB 2: NÂNG CẤP GÓI VIP (ĐÃ XOÁ GÓI SERVER RIÊNG) ====== -->
+            <!-- ====== TAB 2: NÂNG CẤP VIP ====== -->
             <div x-show="currentTab === 'vip'" class="space-y-6">
                 <div class="text-center max-w-xl mx-auto">
                     <h2 class="text-xl sm:text-3xl font-black font-display text-slate-900 tracking-tight">Nâng Cấp Gói VIP</h2>
-                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Mở khóa toàn quyền phân tích kết quả 2 bàn LC79 với đường truyền ưu tiên.</p>
+                    <p class="text-xs sm:text-sm text-slate-500 mt-1">Mở khóa toàn quyền phân tích kết quả 2 bàn LC79.</p>
                 </div>
 
-                <!-- Ô Nhập Key Kích Hoạt Nhanh -->
-                <div class="max-w-md mx-auto bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-2">
+                <!-- Ô Nhập Key -->
+                <div class="max-w-md mx-auto bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-2">
                     <input type="text" x-model="vipKeyInput" placeholder="Nhập mã KEY VIP (ví dụ: AK_XXXX_XXXX)" 
-                           class="flex-1 h-10 px-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs uppercase font-mono font-bold focus:bg-white focus:outline-none focus:border-blue-500">
+                           class="flex-1 h-10 px-3 bg-slate-50 border border-slate-200 rounded-xl text-xs uppercase font-mono font-bold focus:bg-white focus:outline-none focus:border-blue-500">
                     <button @click="redeemKey()" class="px-5 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl btn-pill shrink-0">
                         Kích Hoạt Key
                     </button>
@@ -391,7 +364,7 @@
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <template x-for="pkg in vipPackages" :key="pkg.name">
-                        <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm flex flex-col justify-between hover:border-blue-300 transition-all">
+                        <div class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm flex flex-col justify-between">
                             <div>
                                 <div class="flex justify-between items-center mb-3">
                                     <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full" x-text="pkg.badge"></span>
@@ -413,7 +386,7 @@
                 </div>
             </div>
 
-            <!-- ====== TAB 3: NẠP TIỀN TỰ ĐỘNG ====== -->
+            <!-- ====== TAB 3: NẠP TIỀN ====== -->
             <div x-show="currentTab === 'recharge'" class="max-w-lg mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm">
                 <div class="text-center mb-6">
                     <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto text-2xl mb-2">
@@ -425,12 +398,12 @@
 
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">Chọn Mệnh Giá Nhanh</label>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-2">Mệnh Giá Chọn Nhanh</label>
                         <div class="grid grid-cols-4 gap-2">
                             <template x-for="amt in [20000, 50000, 100000, 200000]" :key="amt">
                                 <button type="button" @click="rechargeAmount = amt"
                                         :class="rechargeAmount === amt ? 'bg-blue-600 text-white font-bold' : 'bg-slate-50 text-slate-700 hover:bg-slate-100'"
-                                        class="py-2 rounded-xl text-xs font-mono border border-slate-200 transition-all btn-pill">
+                                        class="py-2 rounded-xl text-xs font-mono border border-slate-200 btn-pill">
                                     <span x-text="(amt/1000) + 'K'"></span>
                                 </button>
                             </template>
@@ -438,18 +411,18 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1.5">Số Tiền Muốn Nạp (VNĐ)</label>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1.5">Số Tiền Muốn Nạp (VNĐ)</label>
                         <input type="number" x-model.number="rechargeAmount" min="10000" step="10000"
                                class="w-full h-11 px-4 bg-slate-50 border border-slate-200 rounded-xl font-mono font-bold text-slate-900 focus:bg-white focus:outline-none focus:border-blue-500">
                     </div>
 
-                    <button @click="createDeposit()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md shadow-blue-500/20 btn-pill">
+                    <button @click="createDeposit()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold font-display text-xs uppercase tracking-wider rounded-full shadow-md btn-pill">
                         Tạo Lệnh Nạp & Xem Mã QR
                     </button>
                 </div>
             </div>
 
-            <!-- ====== TAB 4: THÔNG TIN CÁ NHÂN & ĐỔI AVATAR ====== -->
+            <!-- ====== TAB 4: CÀI ĐẶT TÀI KHOẢN & ĐỔI AVATAR ====== -->
             <div x-show="currentTab === 'profile'" class="max-w-xl mx-auto bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm space-y-6">
                 <div>
                     <h2 class="text-xl font-bold font-display text-slate-900">Cài Đặt Tài Khoản</h2>
@@ -471,17 +444,17 @@
 
                 <div class="space-y-3.5">
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Tên Hiển Thị</label>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Tên Hiển Thị</label>
                         <input type="text" x-model="profileForm.displayName" class="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Mật Khẩu Hiện Tại</label>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mật Khẩu Hiện Tại</label>
                         <input type="password" x-model="profileForm.oldPassword" placeholder="••••••••" class="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500">
                     </div>
 
                     <div>
-                        <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Mật Khẩu Mới (Nếu muốn đổi)</label>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Mật Khẩu Mới (Nếu muốn đổi)</label>
                         <input type="password" x-model="profileForm.newPassword" placeholder="Nhập mật khẩu mới" class="w-full h-11 px-4 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:bg-white focus:outline-none focus:border-blue-500">
                     </div>
 
@@ -493,7 +466,7 @@
 
         </main>
 
-        <!-- THANH ĐIỀU HƯỚNG DƯỚI ĐÁY CHO ĐIỆN THOẠI (MOBILE FOOTER BAR) -->
+        <!-- FOOTER BAR TRÊN MOBILE (FIX KHÔNG ĐÈ LÊN NỘI DUNG) -->
         <nav class="sm:hidden fixed bottom-0 left-0 right-0 z-50 h-[64px] bg-white/95 backdrop-blur-md border-t border-slate-200 flex items-center justify-around px-2 shadow-lg">
             <button @click="switchTab('tools')" :class="currentTab === 'tools' ? 'text-blue-600' : 'text-slate-400'" class="flex flex-col items-center gap-0.5">
                 <i class="ri-apps-2-line text-lg"></i>
@@ -523,7 +496,6 @@
                 showAuthModal: false,
                 authTab: 'login',
                 currentTab: 'tools',
-
                 user: {},
 
                 authForm: {
@@ -631,7 +603,7 @@
                             this.showAuthModal = false;
                             localStorage.setItem('ak_user', JSON.stringify(data.user));
                             this.syncProfileForm();
-                            Swal.fire('Chúc mừng', 'Tài khoản của bạn đã được khởi tạo thành công!', 'success');
+                            Swal.fire('Chúc mừng', 'Tài khoản của bạn đã được khởi tạo!', 'success');
                         } else {
                             Swal.fire('Lỗi', data.message, 'error');
                         }
@@ -721,7 +693,7 @@
                                 title: 'Hóa Đơn Nạp Tiền',
                                 html: `
                                     <div class="text-center">
-                                        <p class="text-xs text-slate-500 mb-3">Quét mã QR dưới đây hoặc chuyển khoản theo cú pháp</p>
+                                        <p class="text-xs text-slate-500 mb-3">Quét mã QR dưới đây để nạp tiền</p>
                                         <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=PORTAL_ANHKHOI_${data.deposit.id}" class="mx-auto border p-1 rounded-xl mb-3">
                                         <div class="text-left text-xs bg-slate-50 p-3 rounded-xl border">
                                             <p><b>Mã GD:</b> ${data.deposit.id}</p>
@@ -807,7 +779,7 @@
                             <div class="text-left text-xs space-y-2 p-3 bg-slate-50 rounded-xl border">
                                 <p><b>Phiên hiện tại:</b> #${Math.floor(800000 + Math.random() * 100000)}</p>
                                 <p><b>Thuật toán:</b> Giải mã luồng dữ liệu LC79</p>
-                                <p><b>Dự đoán phiên tới:</b> <span class="px-2 py-0.5 rounded text-white font-bold bg-blue-600">TÀI (Tỉ lệ 89%)</span></p>
+                                <p><b>Dự đoán phiên tới:</b> <span class="px-2 py-0.5 rounded text-white font-bold bg-blue-600">TÀI (Tỉ lệ 91%)</span></p>
                             </div>
                         `,
                         icon: 'info',
